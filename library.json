@@ -1,0 +1,30 @@
+[
+  {
+    "title": "Getting Started Guide",
+    "file": "docs/getting-started.html",
+    "desc": "A walkthrough for new readers of the library.",
+    "tags": [
+      "Guide"
+    ],
+    "date": "2026-05-15"
+  },
+  {
+    "title": "Reference Sheet",
+    "file": "docs/reference-sheet.html",
+    "desc": "A compact one-page reference of common terms.",
+    "tags": [
+      "Reference"
+    ],
+    "date": "2026-05-08"
+  },
+  {
+    "title": "Sample Report",
+    "file": "docs/sample-report.html",
+    "desc": "An example report layout to duplicate and adapt.",
+    "tags": [
+      "Report",
+      "Template"
+    ],
+    "date": "2026-04-30"
+  }
+]

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Document Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    /* Brand */
+    --blue:        #155A9E;
+    --blue-dark:   #0e4278;
+    --blue-light:  #e8f0f9;
+    --blue-border: #7aadd4;
+    --purple:        #F067AF;
+    --purple-dark:   #d44d96;
+    --purple-light:  #fef0f7;
+    --purple-border: #f7aed8;
+    --purple-soft:   #fde3f1;
+    --purple-btn:    #f49ccc;
+
+    /* Status */
+    --green:  #22c55e;
+    --orange: #f97316;
+    --red:    #ef4444;
+
+    /* Neutral ramp */
+    --gray-50:  #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+
+    /* Type */
+    --font-display: "Nunito", sans-serif;
+    --font-body: "DM Sans", sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: #ffffff;
+    color: var(--gray-900);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 28px 16px 48px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .column {
+    width: 100%;
+    max-width: 640px;
+  }
+
+  /* ---- Masthead ---- */
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray-400);
+    margin-bottom: 6px;
+  }
+  h1.title {
+    font-size: clamp(18px, 3.5vw, 26px);
+    font-weight: 700;
+    color: var(--gray-900);
+    letter-spacing: -0.5px;
+  }
+  .subtitle {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--gray-500);
+    margin-top: 4px;
+    margin-bottom: 28px;
+  }
+
+  /* ---- Controls ---- */
+  .controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .search {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+  }
+  .search svg {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    width: 18px; height: 18px;
+    stroke: var(--gray-400);
+    pointer-events: none;
+  }
+  .search input {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--gray-900);
+    background: #ffffff;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 9px 14px 9px 38px;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .search input::placeholder { color: var(--gray-400); }
+  .search input:focus { border-color: var(--blue); }
+
+  select {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-600);
+    background: #ffffff;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 9px 34px 9px 14px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    transition: border-color 0.15s ease;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+  select:hover { border-color: var(--gray-300); }
+  select:focus { border-color: var(--blue); }
+
+  /* ---- Tag filter row ---- */
+  .tag-section { margin-bottom: 22px; }
+  .tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .chip {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-600);
+    background: #ffffff;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  .chip:hover { border-color: var(--blue-border); }
+  .chip.active {
+    background: var(--blue-light);
+    border-color: var(--blue-border);
+    color: var(--blue-dark);
+  }
+
+  /* ---- Document cards ---- */
+  .grid {
+    display: grid;
+    gap: 12px;
+  }
+  .card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: var(--gray-50);
+    border: 2px solid var(--gray-200);
+    border-radius: 14px;
+    padding: 16px 20px;
+    transition: background 0.25s ease, border-color 0.25s ease;
+  }
+  .card:hover {
+    background: var(--blue-light);
+    border-color: var(--blue-border);
+  }
+  .card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .card h2 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--gray-900);
+    letter-spacing: -0.3px;
+  }
+  .card-date {
+    font-size: 13px;
+    color: var(--gray-400);
+    white-space: nowrap;
+  }
+  .card-desc {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--gray-600);
+    margin: 6px 0 12px;
+    line-height: 1.5;
+  }
+  .card-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .pill {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--blue-dark);
+    background: var(--blue-light);
+    border-radius: 99px;
+    padding: 4px 10px;
+  }
+
+  /* ---- Empty / error ---- */
+  .empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--gray-400);
+    font-size: 15px;
+  }
+</style>
+</head>
+<body>
+<div class="column">
+
+  <div class="eyebrow">Collection</div>
+  <h1 class="title">Document Library</h1>
+  <p class="subtitle">Search, filter, and open any document in the collection.</p>
+
+  <div class="controls">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" />
+      </svg>
+      <input type="text" id="search" placeholder="Search the library…" aria-label="Search documents" />
+    </div>
+    <select id="sort" aria-label="Sort order">
+      <option value="title">Sort: A–Z</option>
+      <option value="date">Sort: Newest first</option>
+    </select>
+  </div>
+
+  <div class="tag-section">
+    <div class="eyebrow">Filter by category</div>
+    <div class="tags" id="tags"></div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" hidden>Nothing in the collection matches that.</div>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var grid     = document.getElementById("grid");
+  var tagBox   = document.getElementById("tags");
+  var emptyEl  = document.getElementById("empty");
+  var searchEl = document.getElementById("search");
+  var sortEl   = document.getElementById("sort");
+
+  var DOCS = [];
+  var activeTag = null;
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function formatDate(iso) {
+    var d = new Date(iso + "T00:00:00");
+    if (isNaN(d)) return iso;
+    return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+  }
+
+  function collectTags() {
+    var set = {};
+    DOCS.forEach(function (d) {
+      (d.tags || []).forEach(function (t) { set[t] = true; });
+    });
+    return Object.keys(set).sort();
+  }
+
+  function renderTags() {
+    var tags = collectTags();
+    tagBox.innerHTML = "";
+    var all = document.createElement("button");
+    all.className = "chip" + (activeTag === null ? " active" : "");
+    all.textContent = "All";
+    all.onclick = function () { activeTag = null; render(); };
+    tagBox.appendChild(all);
+    tags.forEach(function (t) {
+      var b = document.createElement("button");
+      b.className = "chip" + (activeTag === t ? " active" : "");
+      b.textContent = t;
+      b.onclick = function () { activeTag = (activeTag === t ? null : t); render(); };
+      tagBox.appendChild(b);
+    });
+  }
+
+  function render() {
+    renderTags();
+    var term = searchEl.value.trim().toLowerCase();
+
+    var rows = DOCS.filter(function (d) {
+      var hay = (d.title + " " + (d.desc || "")).toLowerCase();
+      var matchTerm = !term || hay.indexOf(term) >= 0;
+      var matchTag  = !activeTag || (d.tags || []).indexOf(activeTag) >= 0;
+      return matchTerm && matchTag;
+    });
+
+    rows.sort(function (a, b) {
+      if (sortEl.value === "date") return (b.date || "").localeCompare(a.date || "");
+      return a.title.localeCompare(b.title);
+    });
+
+    grid.innerHTML = "";
+    rows.forEach(function (d) {
+      var a = document.createElement("a");
+      a.className = "card";
+      a.href = d.file;
+      var pills = (d.tags || []).map(function (t) {
+        return '<span class="pill">' + escapeHtml(t) + "</span>";
+      }).join("");
+      a.innerHTML =
+        '<div class="card-head">' +
+          "<h2>" + escapeHtml(d.title) + "</h2>" +
+          '<span class="card-date">' + formatDate(d.date || "") + "</span>" +
+        "</div>" +
+        '<p class="card-desc">' + escapeHtml(d.desc || "") + "</p>" +
+        '<div class="card-tags">' + pills + "</div>";
+      grid.appendChild(a);
+    });
+
+    grid.hidden = rows.length === 0;
+    emptyEl.hidden = rows.length !== 0;
+  }
+
+  searchEl.addEventListener("input", render);
+  sortEl.addEventListener("change", render);
+
+  fetch("library.json", { cache: "no-cache" })
+    .then(function (r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    })
+    .then(function (data) {
+      DOCS = Array.isArray(data) ? data : [];
+      render();
+    })
+    .catch(function (err) {
+      grid.hidden = true;
+      emptyEl.hidden = false;
+      emptyEl.textContent =
+        "Could not load library.json (" + err.message +
+        "). If you opened this file directly, run it through a local server instead.";
+    });
+})();
+</script>
+</body>
+</html>
