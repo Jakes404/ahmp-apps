@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="af">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AHMP Aftelhorlosie</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #155A9E;
+      --blue-dark: #0e4278;
+      --blue-light: #e8f0f9;
+      --blue-border: #7aadd4;
+      --purple: #F067AF;
+      --purple-dark: #d44d96;
+      --purple-light: #fef0f7;
+      --purple-border: #f7aed8;
+      --purple-soft: #fde3f1;
+      --purple-btn: #f49ccc;
+      --green: #22c55e;
+      --orange: #f97316;
+      --red: #ef4444;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --font-display: 'Nunito', sans-serif;
+      --font-feature-clock: normal;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font-body);
+      background: white;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 28px 16px 48px;
+      transition: background 0.3s;
+    }
+
+    /* ── Normal view wrapper ── */
+    #app {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── Top bar ── */
+    .top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    #date-str {
+      font-size: clamp(13px, 2.5vw, 18px);
+      color: var(--gray-400);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-family: var(--font-body);
+    }
+
+    /* ── Icon buttons ── */
+    .icon-btn {
+      background: none;
+      border: 2px solid var(--gray-200);
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 6px 11px;
+      font-size: 17px;
+      color: var(--gray-500);
+      line-height: 1;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .icon-btn:hover { border-color: var(--gray-400); color: var(--gray-800); }
+
+    /* ── Subject input ── */
+    #subject-input {
+      font-size: clamp(18px, 3.5vw, 26px);
+      font-weight: 700;
+      color: var(--gray-900);
+      border: none;
+      border-bottom: 2px solid var(--gray-200);
+      outline: none;
+      text-align: center;
+      background: transparent;
+      margin: 8px 0 16px;
+      font-family: var(--font-body);
+      width: 100%;
+      max-width: 500px;
+      padding: 4px 0;
+      transition: border-color 0.2s;
+    }
+    #subject-input:focus { border-color: var(--blue); }
+
+    /* ── Phase label ── */
+    #phase-label {
+      font-size: clamp(13px, 2vw, 15px);
+      color: var(--gray-500);
+      font-weight: 600;
+      margin-bottom: 2px;
+      min-height: 22px;
+      letter-spacing: 0.02em;
+      transition: color 0.3s;
+    }
+    #phase-label.reading { color: var(--purple); }
+
+    /* ── BIG CLOCK ── */
+    #clock {
+      font-family: var(--font-display);
+      font-feature-settings: var(--font-feature-clock);
+      font-weight: 900;
+      color: var(--blue);
+      line-height: 1;
+      letter-spacing: -3px;
+      margin: 4px 0 10px;
+      user-select: none;
+      text-align: center;
+      transition: color 0.4s, font-size 0.3s;
+      font-size: clamp(80px, 22vw, 190px);
+    }
+    #clock.reading { color: var(--purple); }
+    #clock.low { color: var(--orange); }
+    #clock.very-low, #clock.done { color: var(--red); }
+    #clock.done { font-size: clamp(32px, 8vw, 72px); letter-spacing: -1px; }
+
+    /* ── Sub reading info ── */
+    #reading-sub {
+      font-size: 14px;
+      color: var(--gray-400);
+      margin-bottom: 8px;
+      display: none;
+    }
+    #reading-sub.idle-breakdown {
+      color: var(--purple);
+      font-weight: 600;
+    }
+
+    /* ── Controls row ── */
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    #start-btn {
+      padding: 13px 38px;
+      font-size: 19px;
+      font-weight: 700;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      background: var(--green);
+      color: white;
+      font-family: var(--font-body);
+      transition: background 0.2s, opacity 0.2s;
+      letter-spacing: 0.01em;
+    }
+    #start-btn.paused { background: var(--gray-800); }
+    #start-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .divider {
+      width: 100%;
+      border: none;
+      border-top: 1px solid var(--gray-100);
+      margin: 0 0 18px 0;
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 11px;
+      color: var(--gray-400);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      align-self: flex-start;
+    }
+
+    /* ── Preset buttons ── */
+    .presets {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 10px;
+      width: 100%;
+    }
+
+    .preset-btn {
+      padding: 9px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 2px solid var(--gray-200);
+      cursor: pointer;
+      background: white;
+      color: var(--gray-600);
+      font-family: var(--font-body);
+      transition: all 0.15s;
+    }
+    .preset-btn:hover { border-color: var(--blue-border); }
+    .preset-btn.active {
+      background: var(--blue-light);
+      color: var(--blue-dark);
+      border-color: var(--blue-border);
+    }
+
+    /* ── Custom input row ── */
+    .custom-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .custom-input {
+      padding: 9px 14px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: 2px solid var(--gray-200);
+      outline: none;
+      width: 175px;
+      font-family: var(--font-body);
+      color: var(--gray-900);
+      transition: border-color 0.2s;
+    }
+    .custom-input:focus { border-color: var(--blue); }
+
+    .set-btn {
+      padding: 9px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background: var(--blue);
+      color: white;
+      font-family: var(--font-body);
+      transition: background 0.15s;
+    }
+    .set-btn:hover { background: var(--blue-dark); }
+
+    /* ── Reading panel ── */
+    #reading-panel {
+      width: 100%;
+      background: var(--gray-50);
+      border: 2px solid var(--gray-200);
+      border-radius: 14px;
+      padding: 16px 20px;
+      transition: all 0.25s;
+    }
+    #reading-panel.enabled {
+      background: var(--purple-light);
+      border-color: var(--purple-border);
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* CSS toggle switch */
+    .toggle-track {
+      width: 44px;
+      height: 24px;
+      border-radius: 99px;
+      background: var(--gray-300);
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .toggle-track.on { background: var(--purple); }
+    .toggle-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: left 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle-track.on .toggle-thumb { left: 23px; }
+
+    .toggle-label {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--gray-600);
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .toggle-label.on { color: var(--purple-dark); }
+
+    #reading-body { display: none; margin-top: 14px; }
+    #reading-body.visible { display: block; }
+
+    #reading-hint {
+      font-size: 13px;
+      color: var(--purple);
+      margin-bottom: 10px;
+    }
+
+    .reading-presets {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .reading-preset-btn {
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 2px solid var(--gray-200);
+      cursor: pointer;
+      background: white;
+      color: var(--gray-600);
+      font-family: var(--font-body);
+      transition: all 0.15s;
+    }
+    .reading-preset-btn.active {
+      background: var(--purple-soft);
+      color: var(--purple-dark);
+      border-color: var(--purple-btn);
+    }
+
+    .reading-custom-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .reading-custom-input {
+      padding: 8px 14px;
+      font-size: 13px;
+      border-radius: 8px;
+      border: 2px solid var(--purple-border);
+      outline: none;
+      width: 165px;
+      font-family: var(--font-body);
+      color: var(--gray-900);
+    }
+    .reading-custom-input:focus { border-color: var(--purple); }
+
+    .reading-set-btn {
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background: var(--purple);
+      color: white;
+      font-family: var(--font-body);
+    }
+
+    #reading-display {
+      font-size: 13px;
+      color: var(--purple);
+      font-weight: 700;
+    }
+
+    /* ══════════════════════════════════════════
+       FULLSCREEN OVERLAY
+    ══════════════════════════════════════════ */
+    #fullscreen-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: white;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s;
+    }
+    #fullscreen-overlay.active { display: flex; }
+
+    /* Date — always visible in fullscreen */
+    #fs-topbar {
+      position: absolute;
+      top: 20px;
+      left: 24px;
+      right: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    #fs-date {
+      font-size: clamp(16px, 2.5vw, 26px);
+      color: var(--gray-400);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-family: var(--font-body);
+      pointer-events: none;
+    }
+
+    /* Exit button fades independently */
+    #fs-exit-btn {
+      background: none;
+      border: 2px solid var(--gray-300);
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 8px 14px;
+      font-size: 14px;
+      color: var(--gray-500);
+      font-family: var(--font-body);
+      font-weight: 600;
+      transition: border-color 0.15s, color 0.15s, opacity 0.5s ease;
+      pointer-events: auto;
+      opacity: 1;
+    }
+    #fs-exit-btn.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    #fs-exit-btn:hover { border-color: var(--gray-500); color: var(--gray-800); }
+
+    #fs-subject {
+      font-size: clamp(16px, 3vw, 28px);
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 6px;
+      text-align: center;
+      padding: 0 20px;
+      font-family: var(--font-body);
+    }
+
+    #fs-phase {
+      font-size: clamp(14px, 2vw, 20px);
+      color: var(--gray-500);
+      font-weight: 600;
+      min-height: 28px;
+      margin-bottom: 10px;
+      transition: color 0.3s;
+      font-family: var(--font-body);
+    }
+    #fs-phase.reading { color: var(--purple); }
+
+    #fs-clock {
+      font-family: var(--font-display);
+      font-feature-settings: var(--font-feature-clock);
+      font-weight: 900;
+      color: var(--blue);
+      line-height: 1;
+      letter-spacing: -4px;
+      user-select: none;
+      text-align: center;
+      transition: color 0.4s, font-size 0.3s;
+      font-size: clamp(100px, 28vw, 280px);
+    }
+    #fs-clock.reading { color: var(--purple); }
+    #fs-clock.low { color: var(--orange); }
+    #fs-clock.very-low, #fs-clock.done { color: var(--red); }
+    #fs-clock.done { font-size: clamp(40px, 10vw, 90px); letter-spacing: -1px; }
+
+    #fs-reading-sub {
+      font-size: 18px;
+      color: var(--gray-400);
+      margin-top: 8px;
+      display: none;
+      font-family: var(--font-body);
+    }
+    #fs-reading-sub.idle-breakdown {
+      color: var(--purple);
+      font-weight: 600;
+    }
+
+    /* Fullscreen pause btn fades */
+    #fs-controls {
+      opacity: 1;
+      transition: opacity 0.5s ease;
+      pointer-events: auto;
+    }
+    #fs-controls.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #fs-start-btn {
+      width: 80px;
+      height: 80px;
+      font-size: 30px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      background: var(--green);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      padding: 0;
+      padding-left: 3px; /* optical correction for ▶ glyph */
+      transition: background 0.2s, opacity 0.2s;
+      box-shadow: 0 4px 20px rgba(34,197,94,0.35);
+    }
+    #fs-start-btn.paused {
+      background: var(--gray-800);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      padding-left: 0; /* ⏸ is already centered */
+    }
+    #fs-start-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Version tag ── */
+    #version-tag {
+      position: fixed;
+      bottom: 10px;
+      right: 14px;
+      font-size: 11px;
+      color: var(--gray-400);
+      font-family: var(--font-body);
+      letter-spacing: 0.05em;
+      pointer-events: none;
+      user-select: none;
+      z-index: 1;
+    }
+    /* Hide when fullscreen overlay is active */
+    #fullscreen-overlay.active ~ #version-tag { display: none; }
+
+  </style>
+</head>
+<body>
+
+  <!-- ══ NORMAL VIEW ══ -->
+  <div id="app">
+
+    <div class="top-bar">
+      <span id="date-str"></span>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button class="icon-btn" id="reset-btn" title="Herstel">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="fullscreen-btn" title="Volskerm">⛶</button>
+      </div>
+    </div>
+
+    <input id="subject-input" value="" placeholder="Toets Naam Hier" />
+
+    <p id="phase-label">Gereed</p>
+
+    <div id="clock">30:00</div>
+
+    <p id="reading-sub"></p>
+
+    <div class="controls">
+      <button id="start-btn">▶ Begin</button>
+    </div>
+
+    <hr class="divider" />
+
+    <p class="section-label">Toetstyd</p>
+
+    <div class="presets" id="presets"></div>
+
+    <div class="custom-row">
+      <input class="custom-input" id="custom-exam-input" type="number" min="1" placeholder="Spesifiseer min" />
+      <button class="set-btn" id="custom-exam-btn">Stel</button>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Reading panel -->
+    <div id="reading-panel">
+      <div class="toggle-row">
+        <div class="toggle-track" id="reading-toggle">
+          <div class="toggle-thumb"></div>
+        </div>
+        <span class="toggle-label" id="reading-toggle-label">📖 Leestyd voor eksamen</span>
+      </div>
+      <div id="reading-body">
+        <p id="reading-hint">Leestyd tel af eerste — toetstyd begin outomaties daarna.</p>
+        <div class="reading-presets" id="reading-presets"></div>
+        <div class="reading-custom-row">
+          <input class="reading-custom-input" id="custom-reading-input" type="number" min="1" placeholder="Spesifiseer min" />
+          <button class="reading-set-btn" id="custom-reading-btn">Stel</button>
+          <span id="reading-display">= 10 min</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /app -->
+
+  <!-- ══ FULLSCREEN OVERLAY ══ -->
+  <div id="fullscreen-overlay">
+
+    <div id="fs-topbar">
+      <span id="fs-date"></span>
+      <button id="fs-exit-btn">✕ Verlaat</button>
+    </div>
+
+    <p id="fs-subject">Rekeningkunde Gr.11</p>
+    <p id="fs-phase">Gereed</p>
+    <div id="fs-clock">30:00</div>
+    <p id="fs-reading-sub"></p>
+
+    <div id="fs-controls">
+      <button id="fs-start-btn">▶</button>
+    </div>
+
+  </div>
+
+  <span id="version-tag">Version 1.6</span>
+
+  <script>
+    // ── State ──────────────────────────────────────────────────────────────────
+    const PRESETS = [30, 45, 60, 90, 120];
+    const READING_PRESETS = [5, 10, 15, 20];
+
+    let examTotal    = 30 * 60;
+    let readingTotal = 10 * 60;
+    let readingEnabled = false;
+    let phase        = "idle";   // idle | reading | exam | done
+    let remaining    = 30 * 60;
+    let running      = false;
+
+    let tickInterval  = null;
+    let mouseTimer    = null;
+    let isFullscreen  = false;
+
+    // ── Helpers ────────────────────────────────────────────────────────────────
+    function pad(n) { return String(n).padStart(2, "0"); }
+
+    function formatTime(secs) {
+      const h = Math.floor(secs / 3600);
+      const m = Math.floor((secs % 3600) / 60);
+      const s = secs % 60;
+      return h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+    }
+
+    function getDateString() {
+      return new Date().toLocaleDateString("af-ZA", {
+        weekday: "long", year: "numeric", month: "long", day: "numeric"
+      });
+    }
+
+    // ── DOM refs ───────────────────────────────────────────────────────────────
+    const $body         = document.body;
+    const $clock        = document.getElementById("clock");
+    const $fsClock      = document.getElementById("fs-clock");
+    const $phaseLabel   = document.getElementById("phase-label");
+    const $fsPhase      = document.getElementById("fs-phase");
+    const $startBtn     = document.getElementById("start-btn");
+    const $fsStartBtn   = document.getElementById("fs-start-btn");
+    const $readingSub   = document.getElementById("reading-sub");
+    const $fsReadingSub = document.getElementById("fs-reading-sub");
+    const $fsOverlay    = document.getElementById("fullscreen-overlay");
+    const $fsTopbar     = document.getElementById("fs-topbar");
+    const $fsControls   = document.getElementById("fs-controls");
+    const $fsDate       = document.getElementById("fs-date");
+    const $fsSubject    = document.getElementById("fs-subject");
+    const $subjectInput = document.getElementById("subject-input");
+    const $readingPanel = document.getElementById("reading-panel");
+    const $readingBody  = document.getElementById("reading-body");
+    const $readingToggle= document.getElementById("reading-toggle");
+    const $readingToggleLabel = document.getElementById("reading-toggle-label");
+    const $readingDisplay = document.getElementById("reading-display");
+    const $customExamInput = document.getElementById("custom-exam-input");
+    const $customReadingInput = document.getElementById("custom-reading-input");
+
+    // ── Init date ──────────────────────────────────────────────────────────────
+    const dateStr = getDateString();
+    document.getElementById("date-str").textContent = dateStr;
+    $fsDate.textContent = dateStr;
+
+    // ── Build preset buttons ───────────────────────────────────────────────────
+    const $presetsWrap = document.getElementById("presets");
+    PRESETS.forEach(m => {
+      const btn = document.createElement("button");
+      btn.className = "preset-btn" + (examTotal === m * 60 ? " active" : "");
+      btn.textContent = `${m} min`;
+      btn.dataset.minutes = m;
+      btn.addEventListener("click", () => handlePreset(m));
+      $presetsWrap.appendChild(btn);
+    });
+
+    const $readingPresetsWrap = document.getElementById("reading-presets");
+    READING_PRESETS.forEach(m => {
+      const btn = document.createElement("button");
+      btn.className = "reading-preset-btn" + (readingTotal === m * 60 ? " active" : "");
+      btn.textContent = `${m} min`;
+      btn.dataset.minutes = m;
+      btn.addEventListener("click", () => {
+        readingTotal = m * 60;
+        updateReadingPresetBtns();
+        updateReadingDisplay();
+        if (phase === "idle" && readingEnabled) {
+          remaining = readingTotal;
+        }
+        render();
+      });
+      $readingPresetsWrap.appendChild(btn);
+    });
+
+    // ── Render ─────────────────────────────────────────────────────────────────
+    function render() {
+      const finished   = phase === "done";
+      const isLow      = remaining <= 60 && remaining > 0 && phase === "exam";
+      const isVeryLow  = remaining <= 30 && remaining > 0 && phase === "exam";
+      const isReading  = phase === "reading";
+      const isIdleWithReading = phase === "idle" && readingEnabled;
+      // Clock text
+      const clockText = finished ? "Tyd Verstreke!" : formatTime(remaining);
+      $clock.textContent = clockText;
+      $fsClock.textContent = clockText;
+
+      // Clock colour classes
+      const clockClass = finished ? "done"
+        : isVeryLow ? "very-low"
+        : isLow     ? "low"
+        : (isReading || isIdleWithReading) ? "reading"
+        : "";
+      [$clock, $fsClock].forEach(el => {
+        el.className = clockClass;
+      });
+
+      // Phase label
+      const phaseText = isReading ? "Leestyd — eindig in…"
+        : phase === "exam" ? "Toetstyd — eindig in…"
+        : finished ? ""
+        : "Gereed";
+      $phaseLabel.textContent = phaseText;
+      $fsPhase.textContent = phaseText;
+      $phaseLabel.className = isReading ? "reading" : "";
+      $fsPhase.className = isReading ? "reading" : "";
+
+      // Reading sub info
+      if (isReading) {
+        const readingMsg = `Toetstyd daarna: ${formatTime(examTotal)}`;
+        $readingSub.textContent = readingMsg;
+        $readingSub.className = "";
+        $readingSub.style.display = "block";
+        $fsReadingSub.textContent = readingMsg;
+        $fsReadingSub.className = "";
+        $fsReadingSub.style.display = "block";
+      } else if (isIdleWithReading) {
+        const readMin = Math.round(readingTotal / 60);
+        const examMin = Math.round(examTotal / 60);
+        const breakdownMsg = `${readMin} min lees + ${examMin} min toets`;
+        $readingSub.textContent = breakdownMsg;
+        $readingSub.className = "idle-breakdown";
+        $readingSub.style.display = "block";
+        $fsReadingSub.textContent = breakdownMsg;
+        $fsReadingSub.className = "idle-breakdown";
+        $fsReadingSub.style.display = "block";
+      } else {
+        $readingSub.style.display = "none";
+        $fsReadingSub.style.display = "none";
+      }
+
+      // Start button
+      const startText = running ? "⏸" : phase === "idle" ? "▶ Begin" : "▶";
+      $startBtn.textContent = startText;
+      $startBtn.className = running ? "paused" : "";
+      $startBtn.disabled = finished;
+      $fsStartBtn.textContent = running ? "⏸" : "▶";
+      $fsStartBtn.className = running ? "paused" : "";
+      $fsStartBtn.disabled = finished;
+
+      // Body background flash handled separately
+    }
+
+    // ── Ticking ────────────────────────────────────────────────────────────────
+    function startTick() {
+      clearInterval(tickInterval);
+      tickInterval = setInterval(() => {
+        if (remaining <= 1) {
+          clearInterval(tickInterval);
+          if (phase === "reading") {
+            phase = "exam";
+            remaining = examTotal;
+            running = true;
+            startTick();
+          } else {
+            phase = "done";
+            remaining = 0;
+            running = false;
+          }
+          render();
+          return;
+        }
+        remaining--;
+        render();
+      }, 1000);
+    }
+
+    function stopTick() { clearInterval(tickInterval); }
+
+    // ── Handlers ───────────────────────────────────────────────────────────────
+    function handleStart() {
+      if (phase === "done") return;
+      if (phase === "idle") {
+        if (readingEnabled && readingTotal > 0) {
+          phase = "reading";
+          remaining = readingTotal;
+        } else {
+          phase = "exam";
+          remaining = examTotal;
+        }
+        running = true;
+        startTick();
+      } else {
+        running = !running;
+        if (running) startTick(); else stopTick();
+      }
+      render();
+    }
+
+    function handleReset() {
+      stopTick();
+      running = false;
+      phase = "idle";
+      remaining = readingEnabled ? readingTotal : examTotal;
+      render();
+    }
+
+    function handlePreset(minutes) {
+      const secs = minutes * 60;
+      examTotal = secs;
+      stopTick();
+      running = false;
+      phase = "idle";
+      remaining = readingEnabled ? readingTotal : secs;
+      updatePresetBtns();
+      render();
+    }
+
+    function handleCustomExam() {
+      const mins = parseInt($customExamInput.value, 10);
+      if (!isNaN(mins) && mins > 0) {
+        handlePreset(mins);
+        $customExamInput.value = "";
+      }
+    }
+
+    function handleCustomReading() {
+      const mins = parseInt($customReadingInput.value, 10);
+      if (!isNaN(mins) && mins > 0) {
+        readingTotal = mins * 60;
+        $customReadingInput.value = "";
+        updateReadingPresetBtns();
+        updateReadingDisplay();
+        // If idle and reading enabled, update remaining
+        if (phase === "idle" && readingEnabled) {
+          remaining = readingTotal;
+        }
+        render();
+      }
+    }
+
+    function toggleReading() {
+      readingEnabled = !readingEnabled;
+      $readingToggle.className = "toggle-track" + (readingEnabled ? " on" : "");
+      $readingToggleLabel.className = "toggle-label" + (readingEnabled ? " on" : "");
+      $readingPanel.className = readingEnabled ? "enabled" : "";
+      $readingBody.className = readingEnabled ? "visible" : "";
+      if (phase === "idle") {
+        remaining = readingEnabled ? readingTotal : examTotal;
+        render();
+      }
+    }
+
+    // ── Fullscreen ─────────────────────────────────────────────────────────────
+    async function enterFullscreen() {
+      $fsSubject.textContent = $subjectInput.value || "AHMP Aftelhorlosie";
+      $fsOverlay.classList.add("active");
+      isFullscreen = true;
+      try {
+        await document.documentElement.requestFullscreen();
+      } catch(_) {}
+      render();
+      resetMouseTimer();
+      document.addEventListener("mousemove", onMouseMove);
+    }
+
+    async function exitFullscreen() {
+      $fsOverlay.classList.remove("active");
+      isFullscreen = false;
+      clearTimeout(mouseTimer);
+      document.removeEventListener("mousemove", onMouseMove);
+      document.getElementById("fs-exit-btn").classList.remove("hidden");
+      $fsControls.classList.remove("hidden");
+      try {
+        if (document.fullscreenElement) await document.exitFullscreen();
+      } catch(_) {}
+    }
+
+    function onMouseMove() {
+      document.getElementById("fs-exit-btn").classList.remove("hidden");
+      $fsControls.classList.remove("hidden");
+      resetMouseTimer();
+    }
+
+    function resetMouseTimer() {
+      clearTimeout(mouseTimer);
+      mouseTimer = setTimeout(() => {
+        document.getElementById("fs-exit-btn").classList.add("hidden");
+        $fsControls.classList.add("hidden");
+      }, 3000);
+    }
+
+    document.addEventListener("fullscreenchange", () => {
+      if (!document.fullscreenElement && isFullscreen) {
+        exitFullscreen();
+      }
+    });
+
+    // ── Subject sync ───────────────────────────────────────────────────────────
+    $subjectInput.addEventListener("input", () => {
+      $fsSubject.textContent = $subjectInput.value || "AHMP Aftelhorlosie";
+    });
+
+    // ── Update helpers ─────────────────────────────────────────────────────────
+    function updatePresetBtns() {
+      document.querySelectorAll(".preset-btn").forEach(btn => {
+        const active = parseInt(btn.dataset.minutes) * 60 === examTotal;
+        btn.className = "preset-btn" + (active ? " active" : "");
+      });
+    }
+
+    function updateReadingPresetBtns() {
+      document.querySelectorAll(".reading-preset-btn").forEach(btn => {
+        const active = parseInt(btn.dataset.minutes) * 60 === readingTotal;
+        btn.className = "reading-preset-btn" + (active ? " active" : "");
+      });
+    }
+
+    function updateReadingDisplay() {
+      $readingDisplay.textContent = `= ${Math.round(readingTotal / 60)} min`;
+    }
+
+    // ── Event listeners ────────────────────────────────────────────────────────
+    $startBtn.addEventListener("click", handleStart);
+    $fsStartBtn.addEventListener("click", handleStart);
+    document.getElementById("reset-btn").addEventListener("click", handleReset);
+    document.getElementById("fullscreen-btn").addEventListener("click", enterFullscreen);
+    document.getElementById("fs-exit-btn").addEventListener("click", exitFullscreen);
+
+    $readingToggle.addEventListener("click", toggleReading);
+    $readingToggleLabel.addEventListener("click", toggleReading);
+
+    document.getElementById("custom-exam-btn").addEventListener("click", handleCustomExam);
+    $customExamInput.addEventListener("keydown", e => { if (e.key === "Enter") handleCustomExam(); });
+
+    document.getElementById("custom-reading-btn").addEventListener("click", handleCustomReading);
+    $customReadingInput.addEventListener("keydown", e => { if (e.key === "Enter") handleCustomReading(); });
+
+    // ── Initial render ─────────────────────────────────────────────────────────
+    updateReadingDisplay();
+    render();
+  </script>
+</body>
+</html>

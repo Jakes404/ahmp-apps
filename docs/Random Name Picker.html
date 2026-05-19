@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="af">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Naam Kieser</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #155A9E;
+      --blue-dark: #0e4278;
+      --blue-light: #e8f0f9;
+      --blue-border: #7aadd4;
+      --purple: #F067AF;
+      --purple-dark: #d44d96;
+      --purple-light: #fef0f7;
+      --purple-border: #f7aed8;
+      --purple-soft: #fde3f1;
+      --purple-btn: #f49ccc;
+      --green: #22c55e;
+      --orange: #f97316;
+      --red: #ef4444;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --font-display: 'Nunito', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: #fff;
+      color: var(--gray-900);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 16px 48px;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Top bar ───────────────────────────── */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .date-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: 2px solid var(--gray-200);
+      border-radius: 8px;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-500);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--gray-400);
+      color: var(--gray-800);
+    }
+
+    .icon-btn svg { width: 18px; height: 18px; }
+
+    .icon-btn-reset:hover {
+      border-color: #fca5a5;
+      color: var(--red);
+    }
+
+    .icon-btn-reset.armed {
+      border-color: var(--red);
+      background: var(--red);
+      color: #fff;
+      animation: armed-pulse 0.9s ease-in-out infinite;
+    }
+
+    @keyframes armed-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
+
+    /* ── Section labels ───────────────────────── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--gray-100);
+      margin: 24px 0;
+    }
+
+    /* ── Display area ─────────────────────────── */
+    .display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      min-height: 220px;
+      margin-bottom: 20px;
+    }
+
+    .display-name {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: clamp(40px, 9vw, 72px);
+      letter-spacing: -3px;
+      line-height: 1.05;
+      color: var(--purple);
+      text-align: center;
+      transition: color 0.2s;
+    }
+
+    .display-name.idle {
+      color: var(--gray-300);
+      letter-spacing: -2px;
+    }
+
+    .display-name.spinning {
+      color: var(--purple);
+    }
+
+    .display-sub {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-400);
+      margin-top: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── Pick button ──────────────────────────── */
+    .pick-row {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 8px;
+    }
+
+    .pick-btn {
+      padding: 13px 38px;
+      font-family: var(--font-body);
+      font-size: 19px;
+      font-weight: 700;
+      border-radius: 12px;
+      border: none;
+      background: var(--green);
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .pick-btn:hover { background: #16a34a; }
+    .pick-btn:active { transform: scale(0.98); }
+
+    .pick-btn:disabled {
+      background: var(--gray-300);
+      cursor: not-allowed;
+    }
+
+    .pick-btn.spinning {
+      background: var(--gray-800);
+    }
+
+    /* ── Input row ────────────────────────────── */
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .name-input {
+      flex: 1;
+      padding: 9px 14px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      border: 2px solid var(--gray-200);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--gray-900);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .name-input:focus {
+      border-color: var(--blue);
+    }
+
+    .add-btn {
+      padding: 9px 18px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .add-btn:hover { background: var(--blue-dark); }
+
+    /* ── Name list ────────────────────────────── */
+    .list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .count-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .list-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    @media (max-width: 420px) {
+      .list-actions { gap: 6px; }
+    }
+
+    .text-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      border: 2px solid var(--gray-200);
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-600);
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+      padding: 7px 12px;
+    }
+
+    .text-action-btn svg { width: 14px; height: 14px; }
+
+    .text-action-btn:hover {
+      border-color: var(--blue-border);
+      background: var(--blue-light);
+      color: var(--blue-dark);
+    }
+
+    .text-action-btn.reset-action:hover {
+      border-color: var(--purple-border);
+      background: var(--purple-soft);
+      color: var(--purple-dark);
+    }
+
+    .text-action-btn.clear-action:hover {
+      border-color: #fca5a5;
+      background: #fef2f2;
+      color: var(--red);
+    }
+
+    .text-action-btn.clear-action.armed {
+      border-color: var(--red);
+      background: #fef2f2;
+      color: var(--red);
+    }
+
+    .name-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 40px;
+    }
+
+    .name-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 6px 8px 14px;
+      background: #fff;
+      border: 2px solid var(--gray-200);
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray-600);
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .name-chip:hover {
+      border-color: var(--blue-border);
+      background: var(--blue-light);
+    }
+
+    .name-chip.drawn {
+      background: var(--purple-soft);
+      border-color: var(--purple-border);
+      color: var(--purple-dark);
+      opacity: 0.7;
+    }
+
+    .name-chip .remove {
+      background: transparent;
+      border: none;
+      color: var(--gray-400);
+      cursor: pointer;
+      padding: 2px 6px;
+      font-size: 16px;
+      line-height: 1;
+      border-radius: 4px;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .name-chip .remove:hover {
+      color: var(--red);
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .empty-state {
+      width: 100%;
+      padding: 20px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--gray-400);
+      font-style: italic;
+    }
+
+    /* ── No-repeat panel ──────────────────────── */
+    .panel {
+      background: var(--gray-50);
+      border: 2px solid var(--gray-200);
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      transition: background 0.25s, border-color 0.25s;
+    }
+
+    .panel.enabled {
+      background: var(--purple-light);
+      border-color: var(--purple-border);
+    }
+
+    .panel-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .panel-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray-600);
+      transition: color 0.2s;
+    }
+
+    .panel.enabled .panel-label {
+      color: var(--purple-dark);
+    }
+
+    .panel-hint {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--gray-400);
+      margin-top: 4px;
+    }
+
+    .panel.enabled .panel-hint {
+      color: var(--purple);
+    }
+
+    /* ── Toggle switch ────────────────────────── */
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: var(--gray-300);
+      border-radius: 99px;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .toggle.on { background: var(--purple); }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: left 0.2s;
+    }
+
+    .toggle.on .toggle-thumb { left: 23px; }
+
+    /* ── Version tag ──────────────────────────── */
+    #version-tag {
+      position: fixed;
+      bottom: 8px;
+      right: 12px;
+      font-size: 11px;
+      color: var(--gray-400);
+      pointer-events: none;
+    }
+
+    /* ── Fullscreen overlay ───────────────────── */
+    #fullscreen-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #fff;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #fullscreen-overlay.active { display: flex; }
+
+    .fs-controls {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 32px;
+      transition: opacity 0.3s;
+    }
+
+    .fs-controls.hidden { opacity: 0; }
+
+    .fs-date {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .fs-exit-btn {
+      background: transparent;
+      border: 2px solid var(--gray-200);
+      border-radius: 8px;
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-500);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .fs-exit-btn:hover {
+      border-color: var(--gray-400);
+      color: var(--gray-800);
+    }
+
+    .fs-exit-btn svg { width: 22px; height: 22px; }
+
+    .fs-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      padding: 20px;
+      width: 100%;
+    }
+
+    .fs-name-wrap {
+      width: 100%;
+      height: clamp(110px, 22vw, 240px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .fs-name {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: var(--fs-name-size, clamp(64px, 16vw, 200px));
+      letter-spacing: -4px;
+      line-height: 1;
+      color: var(--purple);
+      text-align: center;
+      transition: color 0.2s;
+      white-space: nowrap;
+      max-width: 95vw;
+      overflow: hidden;
+    }
+
+    .fs-name.idle {
+      color: var(--gray-300);
+      letter-spacing: -3px;
+    }
+
+    .fs-name.spinning {
+      color: var(--purple);
+    }
+
+    .fs-sub {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      min-height: 18px;
+    }
+
+    .fs-pick-btn {
+      padding: 16px 48px;
+      font-family: var(--font-body);
+      font-size: 22px;
+      font-weight: 700;
+      border-radius: 14px;
+      border: none;
+      background: var(--green);
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s, opacity 0.3s;
+      margin-top: 8px;
+    }
+
+    .fs-pick-btn:hover { background: #16a34a; }
+    .fs-pick-btn:active { transform: scale(0.98); }
+    .fs-pick-btn:disabled {
+      background: var(--gray-300);
+      cursor: not-allowed;
+    }
+    .fs-pick-btn.spinning { background: var(--gray-800); }
+    .fs-pick-btn.hidden { opacity: 0; pointer-events: none; }
+
+    #fullscreen-overlay.active ~ #version-tag { display: none; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- ── Top bar ───────────────────────── -->
+    <div class="top-bar">
+      <div class="date-label" id="date-label">—</div>
+      <div class="top-actions">
+        <button class="icon-btn icon-btn-reset" id="reset-all-btn" title="Begin oor (verwyder alles)" aria-label="Begin oor">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 2.5 -6.25"></path>
+            <polyline points="3 3 3 9 9 9"></polyline>
+          </svg>
+        </button>
+        <button class="icon-btn" id="fullscreen-btn" title="Volskerm" aria-label="Volskerm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
+            <path d="M21 8V5a2 2 0 0 0-2-2h-3"></path>
+            <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
+            <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Display ───────────────────────── -->
+    <div class="display">
+      <div class="display-name idle" id="display-name">Voeg name by</div>
+      <div class="display-sub" id="display-sub"></div>
+    </div>
+
+    <div class="pick-row">
+      <button class="pick-btn" id="pick-btn" disabled>Kies Naam</button>
+    </div>
+
+    <hr>
+
+    <!-- ── Add names ─────────────────────── -->
+    <div class="section-label">Voeg naam by</div>
+    <div class="input-row">
+      <input
+        type="text"
+        class="name-input"
+        id="name-input"
+        placeholder="Tik 'n naam (of plak veelvuldige name)"
+        autocomplete="off"
+      />
+      <button class="add-btn" id="add-btn">Voeg by</button>
+    </div>
+
+    <!-- ── No-repeat panel ───────────────── -->
+    <div class="panel" id="norepeat-panel">
+      <div class="panel-row">
+        <div>
+          <div class="panel-label">Geen herhaling</div>
+          <div class="panel-hint">Elke naam word net een keer gekies</div>
+        </div>
+        <div class="toggle" id="norepeat-toggle">
+          <div class="toggle-thumb"></div>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- ── Name list ─────────────────────── -->
+    <div class="list-header">
+      <span class="count-label" id="count-label">0 name</span>
+      <div class="list-actions">
+        <button class="text-action-btn reset-action" id="reset-btn" title="Herstel getrekte name" style="display: none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 2.5 -6.25"></path>
+            <polyline points="3 3 3 9 9 9"></polyline>
+          </svg>
+          <span>Herstel</span>
+        </button>
+        <button class="text-action-btn" id="shuffle-btn" title="Skommel lys">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 3 21 3 21 8"></polyline>
+            <line x1="4" y1="20" x2="21" y2="3"></line>
+            <polyline points="21 16 21 21 16 21"></polyline>
+            <line x1="15" y1="15" x2="21" y2="21"></line>
+            <line x1="4" y1="4" x2="9" y2="9"></line>
+          </svg>
+          <span>Skommel</span>
+        </button>
+        <button class="text-action-btn clear-action" id="clear-btn" title="Maak skoon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+            <path d="M10 11v6"></path>
+            <path d="M14 11v6"></path>
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+          </svg>
+          <span class="clear-label">Maak skoon</span>
+        </button>
+      </div>
+    </div>
+    <div class="name-list" id="name-list">
+      <div class="empty-state">Nog geen name nie</div>
+    </div>
+  </div>
+
+  <!-- ── Fullscreen overlay ──────────────── -->
+  <div id="fullscreen-overlay">
+    <div class="fs-controls" id="fs-controls">
+      <div class="fs-date" id="fs-date">—</div>
+      <button class="fs-exit-btn" id="fs-exit-btn" title="Sluit volskerm" aria-label="Sluit volskerm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="fs-center">
+      <div class="fs-name-wrap">
+        <div class="fs-name" id="fs-name">Voeg name by</div>
+      </div>
+      <div class="fs-sub" id="fs-sub"></div>
+      <button class="fs-pick-btn" id="fs-pick-btn">Kies Naam</button>
+    </div>
+  </div>
+
+  <div id="version-tag">Weergawe 1.6</div>
+
+  <script>
+    // ── DOM refs ─────────────────────────────
+    const $dateLabel = document.getElementById('date-label');
+    const $displayName = document.getElementById('display-name');
+    const $displaySub = document.getElementById('display-sub');
+    const $pickBtn = document.getElementById('pick-btn');
+    const $shuffleBtn = document.getElementById('shuffle-btn');
+    const $nameInput = document.getElementById('name-input');
+    const $addBtn = document.getElementById('add-btn');
+    const $nameList = document.getElementById('name-list');
+    const $countLabel = document.getElementById('count-label');
+    const $clearBtn = document.getElementById('clear-btn');
+    const $norepeatPanel = document.getElementById('norepeat-panel');
+    const $norepeatToggle = document.getElementById('norepeat-toggle');
+    const $resetBtn = document.getElementById('reset-btn');
+    const $fullscreenBtn = document.getElementById('fullscreen-btn');
+    const $resetAllBtn = document.getElementById('reset-all-btn');
+    const $fsOverlay = document.getElementById('fullscreen-overlay');
+    const $fsControls = document.getElementById('fs-controls');
+    const $fsDate = document.getElementById('fs-date');
+    const $fsName = document.getElementById('fs-name');
+    const $fsSub = document.getElementById('fs-sub');
+    const $fsPickBtn = document.getElementById('fs-pick-btn');
+    const $fsExitBtn = document.getElementById('fs-exit-btn');
+
+    // ── State ────────────────────────────────
+    let names = [];           // all names ever added
+    let drawn = new Set();    // indices of names already picked (when noRepeat on)
+    let noRepeat = false;
+    let spinning = false;
+    let spinTimer = null;
+    const STORAGE_KEY = 'ahmp-naam-kieser';
+
+    // ── Storage ──────────────────────────────
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          names,
+          drawn: [...drawn],
+          noRepeat
+        }));
+      } catch (e) { /* ignore */ }
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        names = Array.isArray(data.names) ? data.names : [];
+        drawn = new Set(Array.isArray(data.drawn) ? data.drawn : []);
+        noRepeat = !!data.noRepeat;
+      } catch (e) { /* ignore */ }
+    }
+
+    // ── Date label ───────────────────────────
+    function setDateLabel() {
+      const days = ['Sondag','Maandag','Dinsdag','Woensdag','Donderdag','Vrydag','Saterdag'];
+      const months = ['Januarie','Februarie','Maart','April','Mei','Junie','Julie','Augustus','September','Oktober','November','Desember'];
+      const d = new Date();
+      const text = `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]}`;
+      $dateLabel.textContent = text;
+      $fsDate.textContent = text;
+    }
+
+    // ── Render name list ─────────────────────
+    function renderList() {
+      $nameList.innerHTML = '';
+      if (names.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.textContent = "Nog geen name nie";
+        $nameList.appendChild(empty);
+      } else {
+        names.forEach((name, idx) => {
+          const chip = document.createElement('div');
+          chip.className = 'name-chip';
+          if (noRepeat && drawn.has(idx)) chip.classList.add('drawn');
+
+          const label = document.createElement('span');
+          label.textContent = name;
+          chip.appendChild(label);
+
+          const remove = document.createElement('button');
+          remove.className = 'remove';
+          remove.innerHTML = '&times;';
+          remove.title = 'Verwyder';
+          remove.addEventListener('click', () => removeName(idx));
+          chip.appendChild(remove);
+
+          $nameList.appendChild(chip);
+        });
+      }
+
+      $countLabel.textContent = names.length === 1 ? '1 naam' : `${names.length} name`;
+      updatePickButton();
+      updateResetRow();
+      updateSubText();
+    }
+
+    function updatePickButton() {
+      const available = noRepeat
+        ? names.filter((_, i) => !drawn.has(i)).length
+        : names.length;
+      const disabled = available === 0 || spinning;
+      $pickBtn.disabled = disabled;
+      $fsPickBtn.disabled = disabled;
+      let label;
+      if (spinning) {
+        label = 'Kies...';
+      } else if (available === 0 && names.length > 0 && noRepeat) {
+        label = 'Almal gekies';
+      } else {
+        label = 'Kies Naam';
+      }
+      $pickBtn.textContent = label;
+      $fsPickBtn.textContent = label;
+    }
+
+    function updateResetRow() {
+      $resetBtn.style.display = (noRepeat && drawn.size > 0) ? 'inline-flex' : 'none';
+    }
+
+    // Keep the "X name oor" text in sync whenever the list or drawn set changes.
+    // We only update this when it's already showing a "remaining" message — we
+    // don't want to overwrite a fresh "Gekies" subtitle from the latest pick.
+    function updateSubText() {
+      if (spinning) return;
+      const current = $displaySub.textContent || '';
+      if (!noRepeat) {
+        // In non-noRepeat mode there's no count to keep current; leave alone.
+        return;
+      }
+      // Only refresh if we're currently showing a remaining-count message,
+      // or showing "Almal gekies" / empty when the situation has changed.
+      const showsCount = /oor$/.test(current) || current === 'Almal gekies' || current === '';
+      if (!showsCount) return;
+      const remaining = names.length - drawn.size;
+      let text;
+      if (names.length === 0) text = '';
+      else if (remaining <= 0) text = 'Almal gekies';
+      else text = `${remaining} ${remaining === 1 ? 'naam' : 'name'} oor`;
+      $displaySub.textContent = text;
+      $fsSub.textContent = text;
+    }
+
+    // ── Add / remove names ───────────────────
+    function addNames(input) {
+      // Split on newlines, tabs, carriage returns, or commas — handles Excel paste
+      const parts = input.split(/[\r\n\t,;]+/).map(s => s.trim()).filter(Boolean);
+      if (parts.length === 0) return;
+      parts.forEach(p => names.push(p));
+      saveState();
+      renderList();
+    }
+
+    function removeName(idx) {
+      names.splice(idx, 1);
+      // Rebuild drawn set with shifted indices
+      const newDrawn = new Set();
+      drawn.forEach(i => {
+        if (i < idx) newDrawn.add(i);
+        else if (i > idx) newDrawn.add(i - 1);
+      });
+      drawn = newDrawn;
+      saveState();
+      renderList();
+    }
+
+    // ── Pick a name ──────────────────────────
+    function pickName() {
+      if (spinning) return;
+      const pool = noRepeat
+        ? names.map((n, i) => ({ n, i })).filter(x => !drawn.has(x.i))
+        : names.map((n, i) => ({ n, i }));
+      if (pool.length === 0) return;
+
+      spinning = true;
+      // Fit fullscreen font to the longest name in the active pool, so the
+      // text doesn't visibly bounce between sizes as the spinner cycles.
+      fitFsFont(pool.map(p => p.n));
+      $displayName.classList.remove('idle');
+      $displayName.classList.add('spinning');
+      $fsName.classList.remove('idle');
+      $fsName.classList.add('spinning');
+      $pickBtn.classList.add('spinning');
+      $fsPickBtn.classList.add('spinning');
+      $displaySub.textContent = '';
+      $fsSub.textContent = '';
+      updatePickButton();
+
+      const totalDuration = 1500;
+      const start = performance.now();
+      let lastIdx = -1;
+
+      function spinStep(now) {
+        const elapsed = now - start;
+        let idx;
+        do {
+          idx = Math.floor(Math.random() * pool.length);
+        } while (idx === lastIdx && pool.length > 1);
+        lastIdx = idx;
+        $displayName.textContent = pool[idx].n;
+        $fsName.textContent = pool[idx].n;
+
+        if (elapsed < totalDuration) {
+          const progress = elapsed / totalDuration;
+          const delay = 50 + (progress * progress * 250);
+          spinTimer = setTimeout(() => spinStep(performance.now()), delay);
+        } else {
+          const finalIdx = Math.floor(Math.random() * pool.length);
+          const winner = pool[finalIdx];
+          $displayName.textContent = winner.n;
+          $fsName.textContent = winner.n;
+          $displayName.classList.remove('spinning');
+          $fsName.classList.remove('spinning');
+          let subText;
+          if (noRepeat) {
+            drawn.add(winner.i);
+            saveState();
+            const remaining = names.length - drawn.size;
+            subText = remaining > 0
+              ? `${remaining} ${remaining === 1 ? 'naam' : 'name'} oor`
+              : 'Almal gekies';
+          } else {
+            subText = 'Gekies';
+          }
+          $displaySub.textContent = subText;
+          $fsSub.textContent = subText;
+          spinning = false;
+          $pickBtn.classList.remove('spinning');
+          $fsPickBtn.classList.remove('spinning');
+          renderList();
+        }
+      }
+
+      spinStep(performance.now());
+    }
+
+    // ── Shuffle list ─────────────────────────
+    function shuffleList() {
+      if (names.length < 2) return;
+      // Fisher-Yates, preserving drawn status by name (not index)
+      const drawnNames = new Set([...drawn].map(i => names[i]));
+      for (let i = names.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [names[i], names[j]] = [names[j], names[i]];
+      }
+      drawn = new Set();
+      names.forEach((n, i) => { if (drawnNames.has(n)) drawn.add(i); });
+      saveState();
+      renderList();
+    }
+
+    // ── Toggle no-repeat ─────────────────────
+    function toggleNoRepeat() {
+      noRepeat = !noRepeat;
+      $norepeatToggle.classList.toggle('on', noRepeat);
+      $norepeatPanel.classList.toggle('enabled', noRepeat);
+      saveState();
+      renderList();
+    }
+
+    // ── Clear / reset ────────────────────────
+    // Two-step clear: first click arms, second click within 3s clears.
+    let clearArmed = false;
+    let clearArmedTimer = null;
+    const $clearLabel = $clearBtn.querySelector('.clear-label');
+
+    function disarmClear() {
+      clearArmed = false;
+      $clearLabel.textContent = 'Maak skoon';
+      $clearBtn.classList.remove('armed');
+      clearTimeout(clearArmedTimer);
+    }
+
+    function clearAll() {
+      if (names.length === 0) return;
+      if (!clearArmed) {
+        clearArmed = true;
+        $clearLabel.textContent = 'Bevestig?';
+        $clearBtn.classList.add('armed');
+        clearTimeout(clearArmedTimer);
+        clearArmedTimer = setTimeout(disarmClear, 3000);
+        return;
+      }
+      // Confirmed
+      disarmClear();
+      names = [];
+      drawn = new Set();
+      $displayName.textContent = 'Voeg name by';
+      $displayName.classList.add('idle');
+      $displaySub.textContent = '';
+      $fsName.textContent = 'Voeg name by';
+      $fsName.classList.add('idle');
+      $fsSub.textContent = '';
+      saveState();
+      renderList();
+    }
+
+    function resetDrawn() {
+      drawn = new Set();
+      saveState();
+      renderList();
+    }
+
+    // ── Reset everything (top-right) ─────────
+    // Two-step like the clear button so a single accidental tap can't wipe the
+    // staff's whole list. First click arms, second within 3s wipes everything.
+    let resetAllArmed = false;
+    let resetAllTimer = null;
+
+    function disarmResetAll() {
+      resetAllArmed = false;
+      $resetAllBtn.classList.remove('armed');
+      $resetAllBtn.title = 'Begin oor (verwyder alles)';
+      clearTimeout(resetAllTimer);
+    }
+
+    function resetAll() {
+      if (!resetAllArmed) {
+        resetAllArmed = true;
+        $resetAllBtn.classList.add('armed');
+        $resetAllBtn.title = 'Druk weer om alles te verwyder';
+        clearTimeout(resetAllTimer);
+        resetAllTimer = setTimeout(disarmResetAll, 3000);
+        return;
+      }
+      disarmResetAll();
+      // Full wipe
+      names = [];
+      drawn = new Set();
+      noRepeat = false;
+      $norepeatToggle.classList.remove('on');
+      $norepeatPanel.classList.remove('enabled');
+      $displayName.textContent = 'Voeg name by';
+      $displayName.classList.add('idle');
+      $displayName.classList.remove('spinning');
+      $displaySub.textContent = '';
+      $fsName.textContent = 'Voeg name by';
+      $fsName.classList.add('idle');
+      $fsName.classList.remove('spinning');
+      $fsSub.textContent = '';
+      saveState();
+      renderList();
+    }
+
+    // ── Event wiring ─────────────────────────
+    $addBtn.addEventListener('click', () => {
+      addNames($nameInput.value);
+      $nameInput.value = '';
+      $nameInput.focus();
+    });
+
+    $nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addNames($nameInput.value);
+        $nameInput.value = '';
+      }
+    });
+
+    // Intercept paste so Excel rows (which use \r\n or \t separators) split properly.
+    // A single-line <input> normally strips newlines on paste, so we grab clipboard text directly.
+    $nameInput.addEventListener('paste', (e) => {
+      const text = (e.clipboardData || window.clipboardData)?.getData('text');
+      if (!text) return;
+      // If it contains any multi-name separator, handle it ourselves
+      if (/[\r\n\t,;]/.test(text)) {
+        e.preventDefault();
+        addNames(text);
+        $nameInput.value = '';
+      }
+    });
+
+    $pickBtn.addEventListener('click', () => { disarmClear(); disarmResetAll(); pickName(); });
+    $fsPickBtn.addEventListener('click', pickName);
+    $shuffleBtn.addEventListener('click', () => { disarmClear(); disarmResetAll(); shuffleList(); });
+    $clearBtn.addEventListener('click', () => { disarmResetAll(); clearAll(); });
+    $norepeatToggle.addEventListener('click', toggleNoRepeat);
+    $resetBtn.addEventListener('click', resetDrawn);
+    $resetAllBtn.addEventListener('click', () => { disarmClear(); resetAll(); });
+
+    // ── Fullscreen ───────────────────────────
+    let fsHideTimer = null;
+
+    // Fullscreen font auto-fit:
+    // The fullscreen display can show very long names; we want them all to
+    // render at the same size on a single line so the layout doesn't bounce.
+    // Find a font-size at which the *longest* name in the pool still fits.
+    function fitFsFont(poolNames) {
+      if (!poolNames || poolNames.length === 0) return;
+      // Use the wrap's actual rendered width as our budget
+      const wrap = document.querySelector('.fs-name-wrap');
+      if (!wrap) return;
+      const wrapWidth = wrap.clientWidth || window.innerWidth * 0.95;
+      const wrapHeight = wrap.clientHeight || 200;
+      // Find longest name (by character count is a decent proxy)
+      let longest = poolNames[0];
+      for (const n of poolNames) {
+        if (n.length > longest.length) longest = n;
+      }
+      // Measure with a temp element
+      const probe = document.createElement('span');
+      probe.style.cssText = `
+        position: absolute; visibility: hidden; white-space: nowrap;
+        font-family: var(--font-display); font-weight: 900;
+        letter-spacing: -4px; line-height: 1;
+      `;
+      probe.textContent = longest;
+      document.body.appendChild(probe);
+      // Start at the natural max size, shrink until it fits
+      const maxSize = Math.min(200, window.innerWidth * 0.16, wrapHeight);
+      let size = maxSize;
+      const minSize = 32;
+      probe.style.fontSize = size + 'px';
+      // Available width with a small horizontal safety margin
+      const budget = wrapWidth * 0.95;
+      while (size > minSize && probe.offsetWidth > budget) {
+        size -= 4;
+        probe.style.fontSize = size + 'px';
+      }
+      document.body.removeChild(probe);
+      $fsName.style.setProperty('--fs-name-size', size + 'px');
+    }
+
+    function showFsControls() {
+      $fsControls.classList.remove('hidden');
+      $fsPickBtn.classList.remove('hidden');
+      clearTimeout(fsHideTimer);
+      fsHideTimer = setTimeout(() => {
+        $fsControls.classList.add('hidden');
+        // Only hide pick button if we have a result showing (not idle)
+        if (!$fsName.classList.contains('idle')) {
+          $fsPickBtn.classList.add('hidden');
+        }
+      }, 3000);
+    }
+
+    function openFullscreen() {
+      // Mirror current state into the FS view
+      $fsName.textContent = $displayName.textContent;
+      $fsName.classList.toggle('idle', $displayName.classList.contains('idle'));
+      $fsName.classList.toggle('spinning', $displayName.classList.contains('spinning'));
+      $fsSub.textContent = $displaySub.textContent;
+      $fsOverlay.classList.add('active');
+      showFsControls();
+      // Try native fullscreen if available (silent fail OK)
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+      // Defer font fitting one frame so the overlay has rendered
+      requestAnimationFrame(() => fitFsFont(names));
+    }
+
+    function closeFullscreen() {
+      $fsOverlay.classList.remove('active');
+      clearTimeout(fsHideTimer);
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    $fullscreenBtn.addEventListener('click', openFullscreen);
+    $fsExitBtn.addEventListener('click', closeFullscreen);
+
+    $fsOverlay.addEventListener('mousemove', showFsControls);
+    $fsOverlay.addEventListener('touchstart', showFsControls);
+    $fsOverlay.addEventListener('click', showFsControls);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && $fsOverlay.classList.contains('active')) {
+        closeFullscreen();
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if ($fsOverlay.classList.contains('active')) {
+        fitFsFont(names);
+      }
+    });
+
+    // ── Init ─────────────────────────────────
+    setDateLabel();
+    loadState();
+    $norepeatToggle.classList.toggle('on', noRepeat);
+    $norepeatPanel.classList.toggle('enabled', noRepeat);
+    renderList();
+  </script>
+</body>
+</html>
