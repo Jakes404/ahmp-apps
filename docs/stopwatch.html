@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stopwatch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --blue: #155A9E;
+    --blue-dark: #0e4278;
+    --blue-light: #e8f0f9;
+    --blue-border: #7aadd4;
+
+    --purple: #F067AF;
+    --purple-dark: #d44d96;
+    --purple-light: #fef0f7;
+    --purple-border: #f7aed8;
+    --purple-soft: #fde3f1;
+    --purple-btn: #f49ccc;
+
+    --green: #22c55e;
+    --orange: #f97316;
+    --red: #ef4444;
+
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+
+    --font-display: "Nunito", system-ui, sans-serif;
+    --font-body: "DM Sans", system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { background: #fff; }
+  body {
+    font-family: var(--font-body);
+    color: var(--gray-900);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 28px 16px 48px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .col {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    align-self: flex-start;
+    margin-bottom: 14px;
+  }
+
+  .hero {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(80px, 22vw, 190px);
+    letter-spacing: -3px;
+    color: var(--blue);
+    line-height: 1;
+    transition: color 0.4s ease, font-size 0.3s ease;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    margin: 18px 0 8px;
+  }
+  .hero .cs {
+    font-size: 0.55em;
+    color: var(--purple);
+    margin-left: 4px;
+    transition: color 0.4s ease;
+  }
+
+  .phase {
+    font-size: clamp(13px, 2vw, 15px);
+    font-weight: 600;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 22px;
+  }
+
+  .controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+
+  .btn-primary {
+    background: var(--green);
+    color: #fff;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 19px;
+    border: none;
+    border-radius: 12px;
+    padding: 13px 38px;
+    cursor: pointer;
+    transition: background 0.2s ease, opacity 0.2s ease, transform 0.05s ease;
+  }
+  .btn-primary:hover { background: #1ea94f; }
+  .btn-primary:active { transform: translateY(1px); }
+  .btn-primary.paused { background: var(--gray-800); }
+  .btn-primary.paused:hover { background: #111827; }
+
+  .btn-secondary {
+    background: var(--blue);
+    color: #fff;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 15px;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    cursor: pointer;
+    transition: background 0.2s ease, opacity 0.2s ease;
+  }
+  .btn-secondary:hover { background: var(--blue-dark); }
+  .btn-secondary:disabled,
+  .btn-icon:disabled,
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .btn-secondary:disabled:hover { background: var(--blue); }
+
+  .btn-icon {
+    background: transparent;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-500);
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .btn-icon:hover { border-color: var(--gray-400); color: var(--gray-600); }
+  .btn-icon svg { width: 20px; height: 20px; }
+
+  .focus-toggle {
+    position: absolute;
+    top: 22px;
+    right: 22px;
+  }
+
+  /* Laps section */
+  .laps-wrap {
+    width: 100%;
+    max-width: 500px;
+    margin-top: 6px;
+    display: none;
+  }
+  .laps-wrap.has-laps { display: block; }
+
+  .laps-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+    padding: 0 4px;
+  }
+  .laps-header .eyebrow { margin-bottom: 0; }
+  .laps-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-400);
+  }
+
+  .laps-panel {
+    background: var(--gray-50);
+    border: 2px solid var(--gray-200);
+    border-radius: 14px;
+    padding: 6px;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+
+  .lap-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr;
+    align-items: center;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .lap-row + .lap-row { border-top: 1px solid var(--gray-100); }
+  .lap-row .num {
+    font-weight: 700;
+    color: var(--gray-600);
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+  .lap-row .split {
+    font-weight: 600;
+    color: var(--gray-900);
+  }
+  .lap-row .total {
+    text-align: right;
+    color: var(--gray-500);
+    font-weight: 400;
+  }
+
+  .lap-row.fastest {
+    background: rgba(34, 197, 94, 0.08);
+  }
+  .lap-row.fastest .split { color: #128a3d; }
+  .lap-row.slowest {
+    background: rgba(249, 115, 22, 0.08);
+  }
+  .lap-row.slowest .split { color: #b8460d; }
+
+  /* Keyboard hints */
+  .hints {
+    margin-top: 28px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .hints kbd {
+    display: inline-block;
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gray-600);
+    background: var(--gray-50);
+    border: 2px solid var(--gray-200);
+    border-radius: 6px;
+    padding: 1px 6px;
+    margin-right: 4px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  /* Focus / fullscreen overlay */
+  .focus-overlay {
+    position: fixed;
+    inset: 0;
+    background: #fff;
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .focus-overlay.active { display: flex; }
+
+  .focus-overlay .hero {
+    font-size: clamp(100px, 28vw, 280px);
+  }
+
+  .focus-controls {
+    position: absolute;
+    bottom: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    transition: opacity 0.5s ease;
+  }
+  .focus-controls.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .btn-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transition: background 0.2s ease, transform 0.05s ease;
+  }
+  .btn-circle:active { transform: translateY(1px); }
+  .btn-circle.go { background: var(--green); box-shadow: 0 4px 20px rgba(34, 197, 94, 0.35); }
+  .btn-circle.go:hover { background: #1ea94f; }
+  .btn-circle.pause { background: var(--gray-800); box-shadow: 0 4px 20px rgba(31, 41, 55, 0.35); }
+  .btn-circle.pause:hover { background: #111827; }
+  .btn-circle.lap { background: var(--blue); box-shadow: 0 4px 20px rgba(21, 90, 158, 0.35); }
+  .btn-circle.lap:hover { background: var(--blue-dark); }
+  .btn-circle svg { width: 30px; height: 30px; }
+
+  .exit-focus {
+    position: absolute;
+    top: 22px;
+    right: 22px;
+    transition: opacity 0.5s ease;
+  }
+  .exit-focus.hidden { opacity: 0; pointer-events: none; }
+
+  .footer-tag {
+    margin-top: 28px;
+    font-size: 11px;
+    color: var(--gray-400);
+  }
+</style>
+</head>
+<body>
+
+  <button id="focusBtn" class="btn-icon focus-toggle" aria-label="Enter focus mode" title="Focus mode (F)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 9V5a1 1 0 0 1 1-1h4" />
+      <path d="M20 9V5a1 1 0 0 0-1-1h-4" />
+      <path d="M4 15v4a1 1 0 0 0 1 1h4" />
+      <path d="M20 15v4a1 1 0 0 1-1 1h-4" />
+    </svg>
+  </button>
+
+  <main class="col">
+    <div class="eyebrow">Stopwatch</div>
+
+    <div id="hero" class="hero" aria-live="polite" aria-atomic="true">
+      00:00<span class="cs">.00</span>
+    </div>
+
+    <div id="phase" class="phase">Ready</div>
+
+    <div class="controls">
+      <button id="startBtn" class="btn-primary">Start</button>
+      <button id="lapBtn" class="btn-secondary" disabled>Lap</button>
+      <button id="resetBtn" class="btn-icon" aria-label="Reset" title="Reset (R)" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 3-6.7" />
+          <path d="M3 4v5h5" />
+        </svg>
+      </button>
+    </div>
+
+    <div id="lapsWrap" class="laps-wrap">
+      <div class="laps-header">
+        <div class="eyebrow">Laps</div>
+        <div id="lapsCount" class="laps-count">0</div>
+      </div>
+      <div id="lapsPanel" class="laps-panel"></div>
+    </div>
+
+    <div class="hints">
+      <span><kbd>Space</kbd> start / pause</span>
+      <span><kbd>L</kbd> lap</span>
+      <span><kbd>R</kbd> reset</span>
+      <span><kbd>F</kbd> focus</span>
+    </div>
+  </main>
+
+  <!-- Focus mode overlay -->
+  <div id="focusOverlay" class="focus-overlay" role="dialog" aria-label="Focus mode">
+    <button id="exitFocusBtn" class="btn-icon exit-focus" aria-label="Exit focus mode" title="Exit (Esc)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 4H5a1 1 0 0 0-1 1v4" />
+        <path d="M15 4h4a1 1 0 0 1 1 1v4" />
+        <path d="M9 20H5a1 1 0 0 1-1-1v-4" />
+        <path d="M15 20h4a1 1 0 0 0 1-1v-4" />
+      </svg>
+    </button>
+
+    <div id="heroFocus" class="hero">
+      00:00<span class="cs">.00</span>
+    </div>
+
+    <div id="focusControls" class="focus-controls">
+      <button id="focusLapBtn" class="btn-circle lap" aria-label="Lap" disabled style="opacity:0.4;cursor:not-allowed">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 20V6" /><path d="M4 6c4-3 8 3 12 0v8c-4 3-8-3-12 0" />
+        </svg>
+      </button>
+      <button id="focusStartBtn" class="btn-circle go" aria-label="Start">
+        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+          <path d="M7 5v14l12-7z" />
+        </svg>
+      </button>
+      <button id="focusResetBtn" class="btn-icon" aria-label="Reset" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 3-6.7" />
+          <path d="M3 4v5h5" />
+        </svg>
+      </button>
+    </div>
+  </main>
+
+<script>
+(() => {
+  const heroEl = document.getElementById('hero');
+  const heroFocusEl = document.getElementById('heroFocus');
+  const phaseEl = document.getElementById('phase');
+  const startBtn = document.getElementById('startBtn');
+  const lapBtn = document.getElementById('lapBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const focusBtn = document.getElementById('focusBtn');
+  const exitFocusBtn = document.getElementById('exitFocusBtn');
+  const focusOverlay = document.getElementById('focusOverlay');
+  const focusControls = document.getElementById('focusControls');
+  const focusStartBtn = document.getElementById('focusStartBtn');
+  const focusLapBtn = document.getElementById('focusLapBtn');
+  const focusResetBtn = document.getElementById('focusResetBtn');
+  const lapsWrap = document.getElementById('lapsWrap');
+  const lapsPanel = document.getElementById('lapsPanel');
+  const lapsCount = document.getElementById('lapsCount');
+
+  // SVG icon strings
+  const playSvg = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M7 5v14l12-7z"/></svg>';
+  const pauseSvg = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>';
+
+  // State
+  let running = false;
+  let elapsed = 0;          // ms accumulated before current run
+  let runStart = 0;         // performance.now() when current run started
+  let rafId = null;
+  let laps = [];            // [{split, total}]
+  let lastLapTotal = 0;
+
+  function now() { return performance.now(); }
+
+  function currentMs() {
+    return running ? elapsed + (now() - runStart) : elapsed;
+  }
+
+  function formatTime(ms) {
+    const totalCs = Math.floor(ms / 10);
+    const cs = totalCs % 100;
+    const totalSec = Math.floor(totalCs / 100);
+    const sec = totalSec % 60;
+    const totalMin = Math.floor(totalSec / 60);
+    const min = totalMin % 60;
+    const hr = Math.floor(totalMin / 60);
+    const pad = (n, w = 2) => String(n).padStart(w, '0');
+    const main = hr > 0
+      ? `${pad(hr)}:${pad(min)}:${pad(sec)}`
+      : `${pad(min)}:${pad(sec)}`;
+    return { main, cs: pad(cs) };
+  }
+
+  function renderTime() {
+    const { main, cs } = formatTime(currentMs());
+    const html = `${main}<span class="cs">.${cs}</span>`;
+    heroEl.innerHTML = html;
+    heroFocusEl.innerHTML = html;
+  }
+
+  function tick() {
+    renderTime();
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function setPhase(text) {
+    phaseEl.textContent = text;
+  }
+
+  function syncButtons() {
+    // Main controls
+    if (running) {
+      startBtn.textContent = 'Pause';
+      startBtn.classList.add('paused');
+      lapBtn.disabled = false;
+      resetBtn.disabled = false;
+    } else {
+      startBtn.textContent = elapsed > 0 ? 'Resume' : 'Start';
+      startBtn.classList.remove('paused');
+      lapBtn.disabled = true;
+      resetBtn.disabled = elapsed === 0 && laps.length === 0;
+    }
+
+    // Focus mode controls
+    if (running) {
+      focusStartBtn.classList.remove('go');
+      focusStartBtn.classList.add('pause');
+      focusStartBtn.setAttribute('aria-label', 'Pause');
+      focusStartBtn.innerHTML = pauseSvg;
+      focusLapBtn.disabled = false;
+      focusLapBtn.style.opacity = '';
+      focusLapBtn.style.cursor = '';
+    } else {
+      focusStartBtn.classList.remove('pause');
+      focusStartBtn.classList.add('go');
+      focusStartBtn.setAttribute('aria-label', elapsed > 0 ? 'Resume' : 'Start');
+      focusStartBtn.innerHTML = playSvg;
+      focusLapBtn.disabled = true;
+      focusLapBtn.style.opacity = '0.4';
+      focusLapBtn.style.cursor = 'not-allowed';
+    }
+    focusResetBtn.disabled = (elapsed === 0 && laps.length === 0) || running;
+
+    // Phase text
+    if (running) setPhase('Running');
+    else if (elapsed > 0) setPhase('Paused');
+    else setPhase('Ready');
+  }
+
+  function start() {
+    if (running) return;
+    running = true;
+    runStart = now();
+    tick();
+    syncButtons();
+  }
+
+  function pause() {
+    if (!running) return;
+    elapsed += now() - runStart;
+    running = false;
+    cancelAnimationFrame(rafId);
+    renderTime();
+    syncButtons();
+  }
+
+  function toggle() {
+    if (running) pause(); else start();
+  }
+
+  function reset() {
+    if (running) return; // safety: don't reset while running
+    running = false;
+    cancelAnimationFrame(rafId);
+    elapsed = 0;
+    laps = [];
+    lastLapTotal = 0;
+    renderTime();
+    renderLaps();
+    syncButtons();
+  }
+
+  function addLap() {
+    if (!running) return;
+    const total = currentMs();
+    const split = total - lastLapTotal;
+    lastLapTotal = total;
+    laps.push({ split, total });
+    renderLaps();
+  }
+
+  function renderLaps() {
+    if (laps.length === 0) {
+      lapsWrap.classList.remove('has-laps');
+      lapsPanel.innerHTML = '';
+      lapsCount.textContent = '0';
+      return;
+    }
+    lapsWrap.classList.add('has-laps');
+    lapsCount.textContent = String(laps.length);
+
+    // Find fastest/slowest by split (only meaningful with 2+ laps)
+    let fastestIdx = -1, slowestIdx = -1;
+    if (laps.length >= 2) {
+      let fastest = Infinity, slowest = -Infinity;
+      laps.forEach((l, i) => {
+        if (l.split < fastest) { fastest = l.split; fastestIdx = i; }
+        if (l.split > slowest) { slowest = l.split; slowestIdx = i; }
+      });
+    }
+
+    // Render newest first
+    const rows = [];
+    for (let i = laps.length - 1; i >= 0; i--) {
+      const l = laps[i];
+      const splitT = formatTime(l.split);
+      const totalT = formatTime(l.total);
+      let cls = 'lap-row';
+      if (i === fastestIdx) cls += ' fastest';
+      else if (i === slowestIdx) cls += ' slowest';
+      rows.push(`
+        <div class="${cls}">
+          <span class="num">Lap ${i + 1}</span>
+          <span class="split">${splitT.main}.${splitT.cs}</span>
+          <span class="total">${totalT.main}.${totalT.cs}</span>
+        </div>
+      `);
+    }
+    lapsPanel.innerHTML = rows.join('');
+  }
+
+  // Focus mode
+  let inactivityTimer = null;
+  function showFocusControls() {
+    focusControls.classList.remove('hidden');
+    exitFocusBtn.classList.remove('hidden');
+    clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(() => {
+      focusControls.classList.add('hidden');
+      exitFocusBtn.classList.add('hidden');
+    }, 3000);
+  }
+
+  function enterFocus() {
+    focusOverlay.classList.add('active');
+    showFocusControls();
+  }
+  function exitFocus() {
+    focusOverlay.classList.remove('active');
+    clearTimeout(inactivityTimer);
+    focusControls.classList.remove('hidden');
+    exitFocusBtn.classList.remove('hidden');
+  }
+
+  focusOverlay.addEventListener('mousemove', showFocusControls);
+  focusOverlay.addEventListener('touchstart', showFocusControls, { passive: true });
+  focusOverlay.addEventListener('click', showFocusControls);
+
+  // Wire up
+  startBtn.addEventListener('click', toggle);
+  lapBtn.addEventListener('click', addLap);
+  resetBtn.addEventListener('click', reset);
+  focusBtn.addEventListener('click', enterFocus);
+  exitFocusBtn.addEventListener('click', exitFocus);
+  focusStartBtn.addEventListener('click', toggle);
+  focusLapBtn.addEventListener('click', addLap);
+  focusResetBtn.addEventListener('click', reset);
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    if (e.target.matches('input, textarea, [contenteditable]')) return;
+    const k = e.key.toLowerCase();
+    if (e.code === 'Space' || k === ' ') {
+      e.preventDefault();
+      toggle();
+    } else if (k === 'l') {
+      e.preventDefault();
+      if (running) addLap();
+    } else if (k === 'r') {
+      e.preventDefault();
+      if (!running) reset();
+    } else if (k === 'f') {
+      e.preventDefault();
+      if (focusOverlay.classList.contains('active')) exitFocus();
+      else enterFocus();
+    } else if (k === 'escape') {
+      if (focusOverlay.classList.contains('active')) {
+        e.preventDefault();
+        exitFocus();
+      }
+    }
+  });
+
+  // Initial render
+  renderTime();
+  syncButtons();
+})();
+</script>
+</body>
+</html>

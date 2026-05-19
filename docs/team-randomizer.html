@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Team Randomizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue: #155A9E;
+  --blue-dark: #0e4278;
+  --blue-light: #e8f0f9;
+  --blue-border: #7aadd4;
+
+  --purple: #F067AF;
+  --purple-dark: #d44d96;
+  --purple-light: #fef0f7;
+  --purple-border: #f7aed8;
+  --purple-soft: #fde3f1;
+  --purple-btn: #f49ccc;
+
+  --green: #22c55e;
+  --orange: #f97316;
+  --red: #ef4444;
+
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+
+  --font-display: 'Nunito', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { background: #fff; }
+body {
+  font-family: var(--font-body);
+  color: var(--gray-900);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 16px 48px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.col {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* ---------- Header ---------- */
+.header { text-align: center; display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray-400);
+}
+.title {
+  font-size: clamp(18px, 3.5vw, 26px);
+  font-weight: 700;
+  color: var(--gray-900);
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Section ---------- */
+.section { display: flex; flex-direction: column; gap: 10px; }
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray-400);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.section-label .count {
+  color: var(--gray-500);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Inputs ---------- */
+.textarea {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--gray-900);
+  background: #fff;
+  border: 2px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 12px 14px;
+  min-height: 110px;
+  resize: vertical;
+  transition: border-color 0.2s;
+  line-height: 1.5;
+}
+.textarea:focus { outline: none; border-color: var(--blue); }
+.textarea::placeholder { color: var(--gray-400); }
+
+.number-input {
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--gray-900);
+  background: #fff;
+  border: 2px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 9px 0;
+  width: 64px;
+  text-align: center;
+  transition: border-color 0.2s;
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
+}
+.number-input::-webkit-outer-spin-button,
+.number-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.number-input:focus { outline: none; border-color: var(--blue); }
+
+/* purple-mode focus override when split-mode is size */
+.split-panel.mode-size .number-input:focus { border-color: var(--purple); }
+
+/* ---------- Chips ---------- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 22px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 6px 6px 12px;
+  background: #fff;
+  border: 2px solid var(--gray-200);
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-600);
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.chip:hover { border-color: var(--blue-border); }
+.chip .x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 99px;
+  background: var(--gray-100);
+  color: var(--gray-500);
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.chip .x:hover { background: var(--red); color: #fff; }
+
+.chips-empty {
+  font-size: 13px;
+  color: var(--gray-400);
+  font-style: italic;
+}
+
+/* ---------- Split panel ---------- */
+.split-panel {
+  background: var(--gray-50);
+  border: 2px solid var(--gray-200);
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: background 0.25s, border-color 0.25s;
+}
+.split-panel.mode-size {
+  background: var(--purple-light);
+  border-color: var(--purple-border);
+}
+
+/* segmented pill toggle */
+.segmented {
+  display: inline-flex;
+  background: #fff;
+  border: 2px solid var(--gray-200);
+  border-radius: 99px;
+  padding: 3px;
+  gap: 2px;
+  align-self: flex-start;
+}
+.seg-btn {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-600);
+  background: transparent;
+  border: 0;
+  padding: 7px 16px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.seg-btn:hover { color: var(--gray-900); }
+.seg-btn.active {
+  background: var(--blue-light);
+  color: var(--blue-dark);
+}
+.split-panel.mode-size .seg-btn.active {
+  background: var(--purple-soft);
+  color: var(--purple-dark);
+}
+
+/* stepper */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.stepper-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-600);
+}
+.stepper-label .word {
+  color: var(--gray-900);
+  font-weight: 700;
+}
+.step-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #fff;
+  border: 2px solid var(--gray-200);
+  color: var(--gray-500);
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.step-btn:hover { border-color: var(--blue-border); color: var(--blue-dark); }
+.step-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.split-panel.mode-size .step-btn:hover { border-color: var(--purple-border); color: var(--purple-dark); }
+
+.split-hint {
+  font-size: 12px;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+/* ---------- Buttons ---------- */
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btn-primary {
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--green);
+  border: 0;
+  border-radius: 12px;
+  padding: 13px 34px;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s, transform 0.1s;
+  letter-spacing: 0.01em;
+}
+.btn-primary:hover { background: #1aab50; }
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-primary.shuffling { background: var(--gray-800); }
+
+.btn-secondary {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--blue);
+  border: 0;
+  border-radius: 8px;
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-secondary:hover { background: var(--blue-dark); }
+
+.btn-ghost {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-600);
+  background: #fff;
+  border: 2px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-ghost:hover { border-color: var(--blue-border); color: var(--blue-dark); }
+.btn-ghost.copied { background: var(--blue-light); border-color: var(--blue-border); color: var(--blue-dark); }
+
+/* ---------- Results ---------- */
+.results-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.results-wrap.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.team-card {
+  background: var(--gray-50);
+  border: 2px solid var(--gray-200);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: opacity 0.3s, transform 0.3s;
+}
+.team-card.entering {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.team-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--gray-100);
+  padding-bottom: 8px;
+}
+.team-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--blue);
+}
+.team-name-input {
+  flex: 1;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gray-900);
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 2px 0;
+  transition: border-color 0.2s;
+  min-width: 0;
+}
+.team-name-input:focus {
+  outline: none;
+  border-bottom-color: var(--blue);
+}
+.team-size {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray-400);
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+.team-members {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.team-member {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-800);
+  padding: 4px 0;
+  transition: opacity 0.1s;
+  font-variant-numeric: tabular-nums;
+}
+.team-member.shuffling {
+  color: var(--gray-500);
+  font-style: italic;
+}
+
+/* ---------- Errors / hints ---------- */
+.error {
+  font-size: 13px;
+  color: var(--red);
+  font-weight: 600;
+  text-align: center;
+  min-height: 18px;
+}
+
+/* ---------- Footer ---------- */
+.footer {
+  font-size: 11px;
+  color: var(--gray-400);
+  text-align: center;
+  margin-top: 8px;
+}
+
+@media (max-width: 480px) {
+  .results-grid { grid-template-columns: 1fr; }
+  .stepper-label { font-size: 13px; }
+}
+</style>
+</head>
+<body>
+  <main class="col">
+    <header class="header">
+      <span class="eyebrow">Randomizer</span>
+      <h1 class="title">Team Randomizer</h1>
+    </header>
+
+    <!-- People input -->
+    <section class="section" aria-labelledby="people-label">
+      <div class="section-label">
+        <span id="people-label">People</span>
+        <span class="count" id="people-count">0 people</span>
+      </div>
+      <textarea
+        class="textarea"
+        id="people-input"
+        placeholder="Add names — one per line, or separate with commas&#10;e.g. Sam&#10;Jordan&#10;Riley"
+        spellcheck="false"
+        autocomplete="off"></textarea>
+      <div class="chips" id="people-chips" aria-live="polite">
+        <span class="chips-empty">Names will appear here as chips you can remove.</span>
+      </div>
+    </section>
+
+    <!-- Split config -->
+    <section class="section" aria-labelledby="split-label">
+      <div class="section-label">
+        <span id="split-label">Split</span>
+      </div>
+      <div class="split-panel" id="split-panel">
+        <div class="segmented" role="tablist" aria-label="Split mode">
+          <button type="button" class="seg-btn active" data-mode="teams" role="tab" aria-selected="true">By number of teams</button>
+          <button type="button" class="seg-btn" data-mode="size" role="tab" aria-selected="false">By people per team</button>
+        </div>
+        <div class="stepper">
+          <button type="button" class="step-btn" id="step-down" aria-label="Decrease">−</button>
+          <input type="number" class="number-input" id="split-value" value="2" min="1" max="999" aria-label="Split value" />
+          <button type="button" class="step-btn" id="step-up" aria-label="Increase">+</button>
+          <span class="stepper-label" id="stepper-label"><span class="word">teams</span></span>
+        </div>
+        <div class="split-hint" id="split-hint">Enter at least 2 people and pick a split.</div>
+      </div>
+    </section>
+
+    <!-- Actions -->
+    <div class="error" id="error" role="alert"></div>
+    <div class="actions">
+      <button type="button" class="btn-primary" id="generate-btn">Generate teams</button>
+    </div>
+
+    <!-- Results -->
+    <section class="results-wrap" id="results-wrap" aria-live="polite">
+      <div class="section-label">
+        <span>Teams</span>
+        <span class="actions" style="gap:8px;">
+          <button type="button" class="btn-ghost" id="reroll-btn" title="Shuffle the same people again">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+            Re-roll
+          </button>
+          <button type="button" class="btn-ghost" id="copy-btn" title="Copy teams as text">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span class="copy-label">Copy</span>
+          </button>
+        </span>
+      </div>
+      <div class="results-grid" id="results-grid"></div>
+    </section>
+
+  </main>
+
+<script>
+(() => {
+  // ---------- State ----------
+  const state = {
+    people: [],
+    mode: 'teams',       // 'teams' or 'size'
+    value: 2,
+    teams: [],           // array of { name, members: [] }
+    customNames: {},     // teamIndex -> custom name (persists across re-rolls if size stays the same)
+    shuffleTimer: null,
+  };
+
+  // ---------- DOM ----------
+  const $ = (id) => document.getElementById(id);
+  const peopleInput = $('people-input');
+  const peopleChips = $('people-chips');
+  const peopleCount = $('people-count');
+  const splitPanel  = $('split-panel');
+  const splitValue  = $('split-value');
+  const stepUp      = $('step-up');
+  const stepDown    = $('step-down');
+  const stepperLabel = $('stepper-label');
+  const splitHint   = $('split-hint');
+  const segBtns     = document.querySelectorAll('.seg-btn');
+  const generateBtn = $('generate-btn');
+  const errorEl     = $('error');
+  const resultsWrap = $('results-wrap');
+  const resultsGrid = $('results-grid');
+  const rerollBtn   = $('reroll-btn');
+  const copyBtn     = $('copy-btn');
+
+  // ---------- People parsing ----------
+  function parsePeople(text) {
+    return text
+      .split(/[\n,]/)
+      .map(s => s.trim())
+      .filter(Boolean);
+  }
+
+  function renderChips() {
+    if (state.people.length === 0) {
+      peopleChips.innerHTML = '<span class="chips-empty">Names will appear here as chips you can remove.</span>';
+    } else {
+      peopleChips.innerHTML = '';
+      state.people.forEach((name, idx) => {
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.textContent = name;
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.className = 'x';
+        x.setAttribute('aria-label', `Remove ${name}`);
+        x.textContent = '×';
+        x.addEventListener('click', () => removePerson(idx));
+        chip.appendChild(x);
+        peopleChips.appendChild(chip);
+      });
+    }
+    const n = state.people.length;
+    peopleCount.textContent = n === 1 ? '1 person' : `${n} people`;
+    updateSplitHint();
+    updateGenerateState();
+  }
+
+  function removePerson(idx) {
+    state.people.splice(idx, 1);
+    // sync textarea with remaining names
+    peopleInput.value = state.people.join('\n');
+    renderChips();
+  }
+
+  peopleInput.addEventListener('input', () => {
+    state.people = parsePeople(peopleInput.value);
+    renderChips();
+  });
+
+  // ---------- Split mode ----------
+  segBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.mode;
+      if (mode === state.mode) return;
+      state.mode = mode;
+      segBtns.forEach(b => {
+        const active = b.dataset.mode === mode;
+        b.classList.toggle('active', active);
+        b.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      splitPanel.classList.toggle('mode-size', mode === 'size');
+      updateStepperLabel();
+      updateSplitHint();
+    });
+  });
+
+  function updateStepperLabel() {
+    const word = state.mode === 'teams'
+      ? (state.value === 1 ? 'team' : 'teams')
+      : (state.value === 1 ? 'person per team' : 'people per team');
+    stepperLabel.innerHTML = `<span class="word">${word}</span>`;
+  }
+
+  function clampValue(v) {
+    v = parseInt(v, 10);
+    if (!Number.isFinite(v) || v < 1) v = 1;
+    if (v > 999) v = 999;
+    return v;
+  }
+
+  splitValue.addEventListener('input', () => {
+    state.value = clampValue(splitValue.value);
+    splitValue.value = state.value;
+    updateStepperLabel();
+    updateSplitHint();
+  });
+  splitValue.addEventListener('blur', () => {
+    splitValue.value = state.value;
+  });
+  stepUp.addEventListener('click', () => {
+    state.value = clampValue(state.value + 1);
+    splitValue.value = state.value;
+    updateStepperLabel();
+    updateSplitHint();
+  });
+  stepDown.addEventListener('click', () => {
+    state.value = clampValue(state.value - 1);
+    splitValue.value = state.value;
+    updateStepperLabel();
+    updateSplitHint();
+  });
+
+  // ---------- Split hint + button state ----------
+  function plannedTeamCount() {
+    const n = state.people.length;
+    if (n === 0) return 0;
+    if (state.mode === 'teams') return Math.min(state.value, n);
+    return Math.ceil(n / state.value);
+  }
+
+  function updateSplitHint() {
+    const n = state.people.length;
+    if (n < 2) {
+      splitHint.textContent = 'Enter at least 2 people and pick a split.';
+      return;
+    }
+    if (state.mode === 'teams') {
+      const k = Math.min(state.value, n);
+      const base = Math.floor(n / k);
+      const extra = n % k;
+      const sizes = extra === 0
+        ? `${k} teams of ${base}`
+        : `${extra} team${extra === 1 ? '' : 's'} of ${base + 1}, ${k - extra} of ${base}`;
+      splitHint.textContent = `${n} people → ${sizes}.`;
+    } else {
+      const size = state.value;
+      const k = Math.ceil(n / size);
+      const remainder = n % size;
+      const sizes = remainder === 0
+        ? `${k} teams of ${size}`
+        : `${k - 1} team${k - 1 === 1 ? '' : 's'} of ${size}, 1 of ${remainder}`;
+      splitHint.textContent = `${n} people → ${sizes}.`;
+    }
+  }
+
+  function updateGenerateState() {
+    generateBtn.disabled = state.people.length < 2;
+  }
+
+  // ---------- Randomization ----------
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function buildTeams() {
+    const n = state.people.length;
+    const shuffled = shuffle(state.people);
+    let k;
+    if (state.mode === 'teams') {
+      k = Math.min(state.value, n);
+    } else {
+      k = Math.ceil(n / state.value);
+    }
+    const teams = Array.from({ length: k }, () => []);
+
+    if (state.mode === 'teams') {
+      // Deal round-robin so sizes differ by at most 1
+      shuffled.forEach((p, i) => teams[i % k].push(p));
+    } else {
+      // Fill teams to size, last team takes the remainder
+      const size = state.value;
+      shuffled.forEach((p, i) => {
+        const teamIdx = Math.floor(i / size);
+        teams[teamIdx].push(p);
+      });
+    }
+
+    return teams.map((members, idx) => ({
+      members,
+      name: state.customNames[idx] || `Team ${idx + 1}`,
+    }));
+  }
+
+  // ---------- Rendering teams ----------
+  const ACCENTS = ['var(--blue)', 'var(--purple)', 'var(--green)', 'var(--orange)', '#8b5cf6', '#06b6d4', '#eab308', '#ec4899'];
+
+  function renderTeams(teams, options = {}) {
+    const { placeholderName } = options;
+    resultsGrid.innerHTML = '';
+    teams.forEach((team, idx) => {
+      const card = document.createElement('div');
+      card.className = 'team-card entering';
+      card.style.transitionDelay = `${idx * 40}ms`;
+
+      const header = document.createElement('div');
+      header.className = 'team-header';
+
+      const dot = document.createElement('span');
+      dot.className = 'team-color-dot';
+      dot.style.background = ACCENTS[idx % ACCENTS.length];
+
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.className = 'team-name-input';
+      nameInput.value = team.name;
+      nameInput.setAttribute('aria-label', `Name for team ${idx + 1}`);
+      nameInput.addEventListener('input', () => {
+        const v = nameInput.value.trim();
+        if (v) {
+          state.customNames[idx] = v;
+          state.teams[idx].name = v;
+        } else {
+          delete state.customNames[idx];
+          state.teams[idx].name = `Team ${idx + 1}`;
+        }
+      });
+
+      const size = document.createElement('span');
+      size.className = 'team-size';
+      size.textContent = `${team.members.length}`;
+
+      header.appendChild(dot);
+      header.appendChild(nameInput);
+      header.appendChild(size);
+
+      const list = document.createElement('ul');
+      list.className = 'team-members';
+      const memberCount = team.members.length;
+      for (let m = 0; m < memberCount; m++) {
+        const li = document.createElement('li');
+        li.className = 'team-member' + (placeholderName ? ' shuffling' : '');
+        li.textContent = placeholderName ? placeholderName() : team.members[m];
+        list.appendChild(li);
+      }
+
+      card.appendChild(header);
+      card.appendChild(list);
+      resultsGrid.appendChild(card);
+
+      // Trigger entrance animation
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => card.classList.remove('entering'));
+      });
+    });
+  }
+
+  function finalizeTeams(teams) {
+    // Replace member text without re-rendering cards (so name inputs keep focus state)
+    const cards = resultsGrid.querySelectorAll('.team-card');
+    teams.forEach((team, idx) => {
+      const card = cards[idx];
+      if (!card) return;
+      const items = card.querySelectorAll('.team-member');
+      team.members.forEach((name, m) => {
+        if (items[m]) {
+          items[m].textContent = name;
+          items[m].classList.remove('shuffling');
+        }
+      });
+    });
+  }
+
+  // ---------- Shuffle reveal ----------
+  function startShuffleReveal() {
+    if (state.shuffleTimer) clearInterval(state.shuffleTimer);
+
+    errorEl.textContent = '';
+    const teams = buildTeams();
+    state.teams = teams;
+
+    // If team count changed, drop stale custom names beyond range
+    Object.keys(state.customNames).forEach(k => {
+      if (parseInt(k, 10) >= teams.length) delete state.customNames[k];
+    });
+
+    // Render placeholders first
+    const pool = state.people.slice();
+    const pickRandom = () => pool[Math.floor(Math.random() * pool.length)] || '—';
+    renderTeams(teams, { placeholderName: pickRandom });
+    resultsWrap.classList.add('visible');
+
+    generateBtn.classList.add('shuffling');
+    generateBtn.textContent = 'Shuffling…';
+    generateBtn.disabled = true;
+    rerollBtn.disabled = true;
+    copyBtn.disabled = true;
+
+    // Cycle each slot's text rapidly
+    const tickMs = 70;
+    const totalMs = 1200;
+    const start = performance.now();
+
+    state.shuffleTimer = setInterval(() => {
+      const elapsed = performance.now() - start;
+      const cards = resultsGrid.querySelectorAll('.team-card');
+      cards.forEach(card => {
+        card.querySelectorAll('.team-member').forEach(li => {
+          li.textContent = pickRandom();
+        });
+      });
+      if (elapsed >= totalMs) {
+        clearInterval(state.shuffleTimer);
+        state.shuffleTimer = null;
+        finalizeTeams(teams);
+        generateBtn.classList.remove('shuffling');
+        generateBtn.textContent = 'Generate teams';
+        generateBtn.disabled = false;
+        rerollBtn.disabled = false;
+        copyBtn.disabled = false;
+      }
+    }, tickMs);
+  }
+
+  generateBtn.addEventListener('click', () => {
+    if (state.people.length < 2) {
+      errorEl.textContent = 'Add at least 2 people first.';
+      return;
+    }
+    if (state.value < 1) {
+      errorEl.textContent = 'Pick a split of at least 1.';
+      return;
+    }
+    if (state.mode === 'teams' && state.value > state.people.length) {
+      // Allowed but show note
+      errorEl.textContent = `Only ${state.people.length} people — you'll get ${state.people.length} teams of 1.`;
+    }
+    startShuffleReveal();
+  });
+
+  rerollBtn.addEventListener('click', () => {
+    if (state.people.length < 2) return;
+    startShuffleReveal();
+  });
+
+  // ---------- Copy ----------
+  copyBtn.addEventListener('click', async () => {
+    if (!state.teams.length) return;
+    const text = state.teams.map(t =>
+      `${t.name} (${t.members.length})\n` + t.members.map(m => `  • ${m}`).join('\n')
+    ).join('\n\n');
+    try {
+      await navigator.clipboard.writeText(text);
+      copyBtn.classList.add('copied');
+      copyBtn.querySelector('.copy-label').textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        copyBtn.querySelector('.copy-label').textContent = 'Copy';
+      }, 1600);
+    } catch {
+      // Fallback: select-and-prompt
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch {}
+      document.body.removeChild(ta);
+      copyBtn.querySelector('.copy-label').textContent = 'Copied!';
+      setTimeout(() => copyBtn.querySelector('.copy-label').textContent = 'Copy', 1600);
+    }
+  });
+
+  // ---------- Keyboard ----------
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      if (!generateBtn.disabled) generateBtn.click();
+    }
+  });
+
+  // ---------- Init ----------
+  updateStepperLabel();
+  updateSplitHint();
+  updateGenerateState();
+})();
+</script>
+</body>
+</html>

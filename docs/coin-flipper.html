@@ -1,0 +1,957 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Coin Flipper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue: #155A9E;
+  --blue-dark: #0e4278;
+  --blue-light: #e8f0f9;
+  --blue-border: #7aadd4;
+
+  --purple: #F067AF;
+  --purple-dark: #d44d96;
+  --purple-light: #fef0f7;
+  --purple-border: #f7aed8;
+  --purple-soft: #fde3f1;
+  --purple-btn: #f49ccc;
+
+  --green: #22c55e;
+  --orange: #f97316;
+  --red: #ef4444;
+
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+
+  --font-display: 'Nunito', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { background: #fff; }
+body {
+  font-family: var(--font-body);
+  color: var(--gray-900);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 16px 48px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.col {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+
+/* eyebrow + title */
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray-400);
+}
+.title {
+  font-size: clamp(18px, 3.5vw, 26px);
+  font-weight: 700;
+  color: var(--gray-900);
+  letter-spacing: -0.01em;
+}
+
+.header { text-align: center; display: flex; flex-direction: column; gap: 6px; }
+
+/* label editor row */
+.labels {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  justify-content: center;
+}
+.label-edit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 0 1 200px;
+}
+.label-edit .eyebrow { font-size: 11px; }
+.label-edit input {
+  font-family: var(--font-body);
+  font-size: clamp(15px, 2vw, 18px);
+  font-weight: 700;
+  color: var(--gray-900);
+  text-align: center;
+  border: none;
+  border-bottom: 2px solid var(--gray-200);
+  background: transparent;
+  padding: 4px 8px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.label-edit:nth-child(1) input:focus { border-bottom-color: var(--blue); }
+.label-edit:nth-child(3) input:focus { border-bottom-color: var(--purple); }
+.vs {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray-400);
+  padding-top: 18px;
+}
+
+/* HERO: coin */
+.stage {
+  perspective: 1200px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 18px 0;
+}
+.coin {
+  position: relative;
+  width: clamp(180px, 36vw, 280px);
+  height: clamp(180px, 36vw, 280px);
+  transform-style: preserve-3d;
+  transform: rotateY(0deg);
+  transition: transform 0.4s ease;
+}
+.coin.flipping {
+  /* animation set inline by JS to land on correct side */
+}
+.face {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(28px, 6vw, 44px);
+  letter-spacing: -1px;
+  color: #fff;
+  padding: 18px;
+  text-align: center;
+  word-break: break-word;
+  line-height: 1;
+  box-shadow: inset 0 0 0 6px rgba(255,255,255,0.18), inset 0 0 0 14px rgba(0,0,0,0.06);
+  transition: background 0.4s, box-shadow 0.4s;
+}
+.face.heads {
+  background: radial-gradient(circle at 35% 30%, #f581c0, var(--purple) 60%, var(--purple-dark));
+}
+.face.tails {
+  background: radial-gradient(circle at 35% 30%, #2a78c4, var(--blue) 60%, var(--blue-dark));
+  transform: rotateY(180deg);
+}
+
+/* result line */
+.result {
+  font-family: var(--font-body);
+  font-size: clamp(14px, 2.2vw, 16px);
+  font-weight: 600;
+  color: var(--gray-500);
+  min-height: 22px;
+  text-align: center;
+  transition: color 0.3s;
+}
+.result.heads { color: var(--purple-dark); }
+.result.tails { color: var(--blue); }
+
+/* primary action */
+.flip-btn {
+  background: var(--green);
+  color: #fff;
+  border: none;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 19px;
+  padding: 13px 38px;
+  border-radius: 12px;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: background 0.2s, opacity 0.2s, transform 0.1s;
+  box-shadow: 0 4px 20px rgba(34, 197, 94, 0.35);
+}
+.flip-btn:hover { background: #1aaf52; }
+.flip-btn:active { transform: translateY(1px); }
+.flip-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+
+/* panel */
+.panel {
+  width: 100%;
+  background: var(--gray-50);
+  border: 2px solid var(--gray-200);
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: background 0.25s, border-color 0.25s;
+}
+.panel.active-blue { background: var(--blue-light); border-color: var(--blue-border); }
+.panel.active-purple { background: var(--purple-light); border-color: var(--purple-border); }
+.panel.warning { background: #fff5ec; border-color: #fbbf90; }
+.panel.critical { background: #fef2f2; border-color: #fca5a5; }
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+/* counter rows */
+.counter {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.counter-cell {
+  background: #fff;
+  border: 2px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.counter-cell.heads { border-color: var(--purple-border); background: var(--purple-light); }
+.counter-cell.tails { border-color: var(--blue-border); background: var(--blue-light); }
+.counter-name {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+}
+.counter-cell.heads .counter-name { color: var(--purple-dark); }
+.counter-cell.tails .counter-name { color: var(--blue-dark); }
+.counter-value {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(26px, 5vw, 34px);
+  color: var(--gray-900);
+  letter-spacing: -1px;
+  line-height: 1;
+}
+.counter-cell.heads .counter-value { color: var(--purple-dark); }
+.counter-cell.tails .counter-value { color: var(--blue); }
+.counter-pct {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-500);
+}
+
+.reset-btn {
+  background: transparent;
+  border: 2px solid var(--gray-200);
+  color: var(--gray-500);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.reset-btn:hover { border-color: var(--gray-400); color: var(--gray-800); }
+
+/* toggle switch */
+.toggle-row { display: flex; align-items: center; gap: 10px; }
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 99px;
+  background: var(--gray-300);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: transform 0.2s;
+}
+.toggle.on { background: var(--blue); }
+.toggle.on::after { transform: translateX(20px); }
+.toggle-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-500);
+  transition: color 0.2s;
+}
+.toggle.on + .toggle-label { color: var(--blue); }
+
+/* best-of presets */
+.presets { display: flex; gap: 8px; flex-wrap: wrap; }
+.preset {
+  background: #fff;
+  border: 2px solid var(--gray-200);
+  color: var(--gray-600);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.preset:hover { border-color: var(--blue-border); }
+.preset.active {
+  background: var(--blue-light);
+  border-color: var(--blue-border);
+  color: var(--blue-dark);
+}
+
+/* progress bar */
+.score-row { display: flex; flex-direction: column; gap: 8px; }
+.score-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+.score-name { color: var(--gray-600); }
+.score-name.h { color: var(--purple-dark); }
+.score-name.t { color: var(--blue); }
+.score-count {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.5px;
+}
+.score-count.h { color: var(--purple-dark); }
+.score-count.t { color: var(--blue); }
+.score-meta {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray-400);
+  text-align: center;
+}
+.score-meta.win-h { color: var(--purple-dark); }
+.score-meta.win-t { color: var(--blue); }
+
+.bar {
+  position: relative;
+  height: 10px;
+  background: var(--gray-200);
+  border-radius: 99px;
+  overflow: hidden;
+  display: flex;
+}
+.bar-h, .bar-t {
+  height: 100%;
+  transition: width 0.4s ease;
+}
+.bar-h { background: var(--purple); }
+.bar-t { background: var(--blue); }
+
+/* history */
+.history {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 32px;
+}
+.chip {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 99px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 2px solid transparent;
+  animation: chipIn 0.25s ease;
+}
+.chip.h { background: var(--purple-light); color: var(--purple-dark); border-color: var(--purple-border); }
+.chip.t { background: var(--blue-light); color: var(--blue-dark); border-color: var(--blue-border); }
+.history-empty {
+  font-size: 13px;
+  color: var(--gray-400);
+  font-style: italic;
+}
+@keyframes chipIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* footer */
+.footnote {
+  font-size: 11px;
+  color: var(--gray-400);
+  margin-top: 8px;
+}
+
+@media (max-width: 480px) {
+  .labels { flex-wrap: wrap; }
+  .vs { padding-top: 0; }
+  .counter { grid-template-columns: 1fr; }
+}
+
+/* --- fullscreen / focus mode --- */
+.stage-wrap {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.fs-enter-btn {
+  position: absolute;
+  top: 18px;
+  right: 0;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 2px solid var(--gray-200);
+  border-radius: 8px;
+  color: var(--gray-500);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, color 0.15s;
+}
+.fs-enter-btn:hover { border-color: var(--gray-400); color: var(--gray-800); }
+
+.fs-overlay {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.fs-overlay.open { opacity: 1; pointer-events: all; }
+
+.fs-stage {
+  perspective: 1400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.fs-overlay .coin {
+  width: clamp(260px, 46vw, 400px);
+  height: clamp(260px, 46vw, 400px);
+}
+.fs-overlay .face { font-size: clamp(36px, 8vw, 58px); }
+
+.fs-result {
+  font-family: var(--font-body);
+  font-size: clamp(15px, 2.5vw, 18px);
+  font-weight: 600;
+  color: var(--gray-500);
+  text-align: center;
+  min-height: 24px;
+  transition: color 0.3s, opacity 0.5s;
+}
+.fs-result.heads { color: var(--purple-dark); }
+.fs-result.tails { color: var(--blue); }
+
+.fs-flip-btn {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--green);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(34, 197, 94, 0.35);
+  transition: background 0.2s, opacity 0.2s;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 17px;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+.fs-flip-btn:hover { background: #1aaf52; }
+.fs-flip-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+
+.fs-close-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--gray-800);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  transition: background 0.15s, opacity 0.5s;
+}
+.fs-close-btn:hover { background: var(--gray-900); }
+
+</style>
+</head>
+<body>
+  <main class="col">
+    <div class="header">
+      <div class="eyebrow">Coin Flipper</div>
+      <h1 class="title">Pick a side. Let the coin decide.</h1>
+    </div>
+
+    <!-- editable labels -->
+    <div class="labels">
+      <div class="label-edit">
+        <div class="eyebrow">Side A</div>
+        <input id="labelHeads" type="text" value="Heads" maxlength="18" spellcheck="false" />
+      </div>
+      <div class="vs">vs</div>
+      <div class="label-edit">
+        <div class="eyebrow">Side B</div>
+        <input id="labelTails" type="text" value="Tails" maxlength="18" spellcheck="false" />
+      </div>
+    </div>
+
+    <!-- HERO coin -->
+    <div class="stage-wrap">
+      <div class="stage" id="mainStage">
+        <div class="coin" id="coin">
+          <div class="face heads" id="faceHeads">Heads</div>
+          <div class="face tails" id="faceTails">Tails</div>
+        </div>
+      </div>
+      <button class="fs-enter-btn" id="fsEnterBtn" aria-label="Focus mode">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      </button>
+    </div>
+
+    <div class="result" id="result">Tap flip to begin</div>
+
+    <button class="flip-btn" id="flipBtn">Flip the coin</button>
+
+    <!-- counter panel -->
+    <section class="panel" aria-label="Tally">
+      <div class="panel-head">
+        <div class="eyebrow">Session tally</div>
+        <button class="reset-btn" id="resetBtn">Reset</button>
+      </div>
+      <div class="counter">
+        <div class="counter-cell heads">
+          <div class="counter-name" id="counterNameH">Heads</div>
+          <div class="counter-value" id="countH">0</div>
+          <div class="counter-pct" id="pctH">0% of flips</div>
+        </div>
+        <div class="counter-cell tails">
+          <div class="counter-name" id="counterNameT">Tails</div>
+          <div class="counter-value" id="countT">0</div>
+          <div class="counter-pct" id="pctT">0% of flips</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- best of N -->
+    <section class="panel" id="bestOfPanel" aria-label="Best of">
+      <div class="panel-head">
+        <div class="toggle-row">
+          <button class="toggle" id="bestToggle" role="switch" aria-checked="false" aria-label="Enable best-of mode"></button>
+          <span class="toggle-label" id="bestLabel">Best-of mode</span>
+        </div>
+      </div>
+      <div id="bestBody" style="display:none; display:flex; flex-direction:column; gap:14px;">
+        <div class="eyebrow">First to win</div>
+        <div class="presets" id="bestPresets">
+          <button class="preset" data-n="2">2</button>
+          <button class="preset active" data-n="3">3</button>
+          <button class="preset" data-n="4">4</button>
+          <button class="preset" data-n="5">5</button>
+          <button class="preset" data-n="7">7</button>
+        </div>
+        <div class="score-row">
+          <div class="score-line">
+            <span class="score-name h" id="scoreNameH">Heads</span>
+            <span class="score-count h"><span id="scoreH">0</span> / <span id="scoreTarget">3</span></span>
+          </div>
+          <div class="bar"><div class="bar-h" id="barH" style="width:0%"></div></div>
+          <div class="score-line" style="margin-top:6px;">
+            <span class="score-name t" id="scoreNameT">Tails</span>
+            <span class="score-count t"><span id="scoreT">0</span> / <span id="scoreTargetT">3</span></span>
+          </div>
+          <div class="bar"><div class="bar-t" id="barT" style="width:0%"></div></div>
+        </div>
+        <div class="score-meta" id="scoreMeta">Race to the target</div>
+      </div>
+    </section>
+
+    <!-- history -->
+    <section class="panel" aria-label="History">
+      <div class="panel-head">
+        <div class="eyebrow">Recent flips</div>
+        <span class="footnote" id="historyCount">0 total</span>
+      </div>
+      <div class="history" id="history">
+        <span class="history-empty">No flips yet.</span>
+      </div>
+    </section>
+
+    <div class="footnote">Each flip is a 50/50 random draw.</div>
+  </main>
+
+  <!-- fullscreen focus overlay -->
+  <div id="fsOverlay" class="fs-overlay" role="dialog" aria-modal="true" aria-label="Focus mode" aria-hidden="true">
+    <div class="fs-stage" id="fsStage"></div>
+    <div class="fs-result" id="fsResult">Tap flip to begin</div>
+    <button class="fs-flip-btn" id="fsFlipBtn" aria-label="Flip coin">Flip</button>
+    <button class="fs-close-btn" id="fsCloseBtn" aria-label="Exit focus mode">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+<script>
+(() => {
+  // --- state ---
+  const state = {
+    labelHeads: 'Heads',
+    labelTails: 'Tails',
+    countH: 0,
+    countT: 0,
+    history: [],          // array of 'H' | 'T', newest first
+    flipping: false,
+    bestOn: false,
+    bestTarget: 3,
+    scoreH: 0,
+    scoreT: 0,
+    winner: null,         // 'H' | 'T' | null
+  };
+
+  // True accumulated CSS degrees — must stay in sync with coin's actual transform value.
+  // Using only 0/180 caused the browser to see "no change" on repeat flips, skipping animation.
+  let cumulativeDeg = 0;
+
+  // --- elements ---
+  const $ = (id) => document.getElementById(id);
+  const coin = $('coin');
+  const faceHeads = $('faceHeads');
+  const faceTails = $('faceTails');
+  const inHeads = $('labelHeads');
+  const inTails = $('labelTails');
+  const flipBtn = $('flipBtn');
+  const result = $('result');
+  const resetBtn = $('resetBtn');
+  const bestToggle = $('bestToggle');
+  const bestBody = $('bestBody');
+  const bestLabel = $('bestLabel');
+  const bestPanel = $('bestOfPanel');
+  const bestPresets = $('bestPresets');
+  const scoreH = $('scoreH');
+  const scoreT = $('scoreT');
+  const scoreTarget = $('scoreTarget');
+  const scoreTargetT = $('scoreTargetT');
+  const barH = $('barH');
+  const barT = $('barT');
+  const scoreMeta = $('scoreMeta');
+  const historyEl = $('history');
+  const historyCount = $('historyCount');
+  const mainStage = $('mainStage');
+  const fsOverlay = $('fsOverlay');
+  const fsStage = $('fsStage');
+  const fsFlipBtn = $('fsFlipBtn');
+  const fsCloseBtn = $('fsCloseBtn');
+  const fsEnterBtn = $('fsEnterBtn');
+  const fsResultEl = $('fsResult');
+
+  // --- label binding ---
+  function syncLabels() {
+    state.labelHeads = inHeads.value.trim() || 'Heads';
+    state.labelTails = inTails.value.trim() || 'Tails';
+    faceHeads.textContent = state.labelHeads;
+    faceTails.textContent = state.labelTails;
+    $('counterNameH').textContent = state.labelHeads;
+    $('counterNameT').textContent = state.labelTails;
+    $('scoreNameH').textContent = state.labelHeads;
+    $('scoreNameT').textContent = state.labelTails;
+    renderResult();
+    renderBestMeta();
+  }
+  inHeads.addEventListener('input', syncLabels);
+  inTails.addEventListener('input', syncLabels);
+
+  const FLIP_DURATION = 1500; // ms — CSS transition and re-enable timer must match
+
+  // --- coin animation ---
+  function flip() {
+    if (state.flipping) return;
+    if (state.bestOn && state.winner) return;
+    state.flipping = true;
+    flipBtn.disabled = true;
+    flipBtn.textContent = 'Flipping…';
+    fsFlipBtn.disabled = true;
+
+    const outcome = Math.random() < 0.5 ? 'H' : 'T';
+    const targetBase = outcome === 'H' ? 0 : 180;
+    const currentMod = ((cumulativeDeg % 360) + 360) % 360;
+    const diff = ((targetBase - currentMod) + 360) % 360 || 360;
+    cumulativeDeg = cumulativeDeg + 5 * 360 + diff;
+
+    coin.style.transition = `transform ${FLIP_DURATION}ms cubic-bezier(0.22, 0.61, 0.36, 1)`;
+    void coin.offsetWidth; // force reflow before applying new transform
+    coin.style.transform = `rotateY(${cumulativeDeg}deg)`;
+
+    setTimeout(() => {
+      recordFlip(outcome);
+      state.flipping = false;
+      const wonBestOf = state.bestOn && !!state.winner;
+      flipBtn.disabled = wonBestOf;
+      flipBtn.textContent = wonBestOf ? 'Game over — Reset to play again' : 'Flip the coin';
+      fsFlipBtn.disabled = wonBestOf;
+    }, FLIP_DURATION);
+  }
+
+  flipBtn.addEventListener('click', flip);
+
+  // Spacebar to flip
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      flip();
+    }
+  });
+
+  // --- record + render ---
+  function recordFlip(side) {
+    if (side === 'H') state.countH++; else state.countT++;
+    state.history.unshift(side);
+    if (state.history.length > 50) state.history.pop();
+
+    if (state.bestOn && !state.winner) {
+      if (side === 'H') state.scoreH++; else state.scoreT++;
+      if (state.scoreH >= state.bestTarget) state.winner = 'H';
+      else if (state.scoreT >= state.bestTarget) state.winner = 'T';
+    }
+
+    renderAll();
+  }
+
+  function renderResult() {
+    if (state.history.length === 0) {
+      result.textContent = 'Tap flip to begin';
+      result.className = 'result';
+      fsResultEl.textContent = 'Tap flip to begin';
+      fsResultEl.className = 'fs-result';
+      return;
+    }
+    const last = state.history[0];
+    const name = last === 'H' ? state.labelHeads : state.labelTails;
+    const side = last === 'H' ? 'heads' : 'tails';
+    result.textContent = `Landed on ${name}`;
+    result.className = 'result ' + side;
+    fsResultEl.textContent = `Landed on ${name}`;
+    fsResultEl.className = 'fs-result ' + side;
+  }
+
+  function renderCounter() {
+    $('countH').textContent = state.countH;
+    $('countT').textContent = state.countT;
+    const total = state.countH + state.countT;
+    const pctH = total ? Math.round((state.countH / total) * 100) : 0;
+    const pctT = total ? 100 - pctH : 0;
+    $('pctH').textContent = total ? `${pctH}% of flips` : '0% of flips';
+    $('pctT').textContent = total ? `${pctT}% of flips` : '0% of flips';
+  }
+
+  function renderHistory() {
+    historyCount.textContent = `${state.history.length} total`;
+    if (state.history.length === 0) {
+      historyEl.innerHTML = '<span class="history-empty">No flips yet.</span>';
+      return;
+    }
+    historyEl.innerHTML = '';
+    state.history.forEach(s => {
+      const c = document.createElement('span');
+      c.className = 'chip ' + (s === 'H' ? 'h' : 't');
+      c.textContent = s === 'H' ? state.labelHeads : state.labelTails;
+      historyEl.appendChild(c);
+    });
+  }
+
+  function renderBestMeta() {
+    if (!state.bestOn) {
+      scoreMeta.textContent = 'Race to the target';
+      scoreMeta.className = 'score-meta';
+      return;
+    }
+    if (state.winner) {
+      const name = state.winner === 'H' ? state.labelHeads : state.labelTails;
+      scoreMeta.textContent = `${name} wins — best of ${state.bestTarget * 2 - 1}`;
+      scoreMeta.className = 'score-meta ' + (state.winner === 'H' ? 'win-h' : 'win-t');
+    } else {
+      scoreMeta.textContent = `First to ${state.bestTarget}`;
+      scoreMeta.className = 'score-meta';
+    }
+  }
+
+  function renderBest() {
+    bestToggle.classList.toggle('on', state.bestOn);
+    bestToggle.setAttribute('aria-checked', state.bestOn ? 'true' : 'false');
+    bestBody.style.display = state.bestOn ? 'flex' : 'none';
+    bestLabel.textContent = state.bestOn ? 'Best-of mode on' : 'Best-of mode';
+
+    scoreH.textContent = state.scoreH;
+    scoreT.textContent = state.scoreT;
+    scoreTarget.textContent = state.bestTarget;
+    scoreTargetT.textContent = state.bestTarget;
+    barH.style.width = Math.min(100, (state.scoreH / state.bestTarget) * 100) + '%';
+    barT.style.width = Math.min(100, (state.scoreT / state.bestTarget) * 100) + '%';
+
+    // Panel tinting based on best-of state
+    bestPanel.classList.remove('active-blue', 'active-purple', 'warning', 'critical');
+    if (!state.bestOn) {
+      // resting
+    } else if (state.winner === 'H') {
+      bestPanel.classList.add('active-purple');
+    } else if (state.winner === 'T') {
+      bestPanel.classList.add('active-blue');
+    } else {
+      // approaching limit / critical heuristics
+      const maxScore = Math.max(state.scoreH, state.scoreT);
+      const remaining = state.bestTarget - maxScore;
+      if (remaining === 1) bestPanel.classList.add('warning');
+      else if (remaining === 0) bestPanel.classList.add('critical');
+    }
+
+    // Update preset active state
+    bestPresets.querySelectorAll('.preset').forEach(b => {
+      b.classList.toggle('active', Number(b.dataset.n) === state.bestTarget);
+    });
+
+    renderBestMeta();
+  }
+
+  function renderAll() {
+    renderResult();
+    renderCounter();
+    renderHistory();
+    renderBest();
+    // Disable flip if best-of has a winner
+    const locked = state.flipping || (state.bestOn && !!state.winner);
+    flipBtn.disabled = locked;
+    fsFlipBtn.disabled = locked;
+  }
+
+  // --- reset ---
+  resetBtn.addEventListener('click', () => {
+    state.countH = 0;
+    state.countT = 0;
+    state.history = [];
+    state.scoreH = 0;
+    state.scoreT = 0;
+    state.winner = null;
+    renderAll();
+  });
+
+  // --- best-of toggle ---
+  bestToggle.addEventListener('click', () => {
+    state.bestOn = !state.bestOn;
+    if (!state.bestOn) {
+      state.scoreH = 0;
+      state.scoreT = 0;
+      state.winner = null;
+    }
+    renderAll();
+  });
+
+  bestPresets.addEventListener('click', (e) => {
+    const btn = e.target.closest('.preset');
+    if (!btn) return;
+    const n = Number(btn.dataset.n);
+    state.bestTarget = n;
+    // If a current score is already past the new target, treat as a winner
+    if (state.scoreH >= n) state.winner = 'H';
+    else if (state.scoreT >= n) state.winner = 'T';
+    else state.winner = null;
+    renderAll();
+  });
+
+  // --- fullscreen / focus mode ---
+  let fsIdleTimer = null;
+
+  function openFS() {
+    fsOverlay.classList.add('open');
+    fsOverlay.setAttribute('aria-hidden', 'false');
+    fsStage.appendChild(coin);
+    resetFsIdle();
+  }
+
+  function closeFS() {
+    fsOverlay.classList.remove('open', 'idle');
+    fsOverlay.setAttribute('aria-hidden', 'true');
+    mainStage.appendChild(coin);
+    clearTimeout(fsIdleTimer);
+  }
+
+  function resetFsIdle() {
+    clearTimeout(fsIdleTimer);
+    fsOverlay.classList.remove('idle');
+    fsIdleTimer = setTimeout(() => fsOverlay.classList.add('idle'), 3000);
+  }
+
+  fsEnterBtn.addEventListener('click', openFS);
+  fsCloseBtn.addEventListener('click', closeFS);
+  fsFlipBtn.addEventListener('click', flip);
+
+  ['mousemove', 'touchstart', 'pointerdown'].forEach(evt =>
+    fsOverlay.addEventListener(evt, resetFsIdle, { passive: true })
+  );
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && fsOverlay.classList.contains('open')) closeFS();
+  });
+
+  // initial render
+  syncLabels();
+  renderAll();
+})();
+</script>
+</body>
+</html>

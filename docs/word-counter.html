@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Word Counter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Nunito:wght@800;900&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --blue: #155a9e;
+      --blue-dark: #0e4278;
+      --blue-light: #e8f0f9;
+      --blue-border: #7aadd4;
+
+      --purple: #f067af;
+      --purple-dark: #d44d96;
+      --purple-light: #fef0f7;
+      --purple-border: #f7aed8;
+
+      --green: #22c55e;
+      --orange: #f97316;
+      --red: #ef4444;
+
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+
+      --font-display: "Nunito", system-ui, sans-serif;
+      --font-body: "DM Sans", system-ui, sans-serif;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--gray-900);
+      background: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 16px 48px;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-400);
+    }
+
+    /* ---------- Mode switcher (chip buttons) ---------- */
+    .mode-switcher {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chip {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray-600);
+      background: #fff;
+      border: 2px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 9px 16px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+
+    .chip:hover {
+      border-color: var(--blue-border);
+    }
+
+    .chip.is-active {
+      background: var(--blue-light);
+      border-color: var(--blue-border);
+      color: var(--blue-dark);
+    }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 18px 0 10px;
+    }
+
+    .hero-number {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: clamp(80px, 22vw, 190px);
+      letter-spacing: -3px;
+      line-height: 1;
+      color: var(--blue);
+      transition: color 0.4s;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .hero-label {
+      margin-top: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-400);
+      transition: color 0.3s;
+    }
+
+    .hero.is-warning .hero-number {
+      color: var(--orange);
+    }
+    .hero.is-critical .hero-number {
+      color: var(--red);
+    }
+    .hero.is-warning .hero-label {
+      color: var(--orange);
+    }
+    .hero.is-critical .hero-label {
+      color: var(--red);
+    }
+
+    /* ---------- Target row ---------- */
+    .target-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--gray-50);
+      border: 2px solid var(--gray-200);
+      border-radius: 14px;
+      transition: background 0.25s, border-color 0.25s;
+    }
+
+    .target-row.is-set {
+      background: var(--blue-light);
+      border-color: var(--blue-border);
+    }
+
+    .target-row.is-warning {
+      background: #fff4ec;
+      border-color: #fbbf8a;
+    }
+
+    .target-row.is-critical {
+      background: #fdecec;
+      border-color: #f5a5a5;
+    }
+
+    .target-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-500);
+      white-space: nowrap;
+    }
+
+    .target-input {
+      font-family: var(--font-body);
+      font-size: 15px;
+      color: var(--gray-900);
+      background: #fff;
+      border: 2px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 9px 14px;
+      width: 110px;
+      transition: border-color 0.2s;
+      -moz-appearance: textfield;
+    }
+
+    .target-input::-webkit-outer-spin-button,
+    .target-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .target-input:focus {
+      outline: none;
+      border-color: var(--blue);
+    }
+
+    .target-progress {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 6px;
+      background: var(--gray-200);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--blue);
+      border-radius: 99px;
+      transition: width 0.25s, background 0.3s;
+    }
+
+    .progress-fill.is-warning {
+      background: var(--orange);
+    }
+    .progress-fill.is-critical {
+      background: var(--red);
+    }
+
+    .progress-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-500);
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .progress-text.is-warning {
+      color: var(--orange);
+    }
+    .progress-text.is-critical {
+      color: var(--red);
+    }
+
+    /* ---------- Textarea ---------- */
+    .text-input {
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--gray-900);
+      background: #fff;
+      border: 2px solid var(--gray-200);
+      border-radius: 14px;
+      padding: 16px 18px;
+      width: 100%;
+      min-height: 280px;
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
+
+    .text-input::placeholder {
+      color: var(--gray-400);
+    }
+
+    .text-input:focus {
+      outline: none;
+      border-color: var(--blue);
+    }
+
+    /* ---------- Stats grid ---------- */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      background: var(--gray-50);
+      border: 2px solid var(--gray-200);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-value {
+      font-family: var(--font-body);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--gray-900);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-400);
+    }
+
+    /* ---------- Actions ---------- */
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 9px 18px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: background 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
+    .btn-primary:hover {
+      background: var(--blue-dark);
+      border-color: var(--blue-dark);
+    }
+
+    .btn-neutral {
+      background: #fff;
+      color: var(--gray-600);
+      border-color: var(--gray-200);
+    }
+    .btn-neutral:hover {
+      border-color: var(--gray-300);
+      color: var(--gray-800);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-primary.is-copied {
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    @media (max-width: 480px) {
+      .target-row {
+        flex-wrap: wrap;
+      }
+      .target-progress {
+        flex-basis: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <span class="eyebrow">Word Counter</span>
+
+    <div class="mode-switcher" role="tablist" aria-label="Hero metric">
+      <button class="chip is-active" data-mode="words" role="tab" aria-selected="true">
+        Words
+      </button>
+      <button class="chip" data-mode="chars" role="tab" aria-selected="false">
+        Characters
+      </button>
+    </div>
+
+    <div class="hero" id="hero">
+      <div class="hero-number" id="heroNumber">0</div>
+      <div class="hero-label" id="heroLabel">words</div>
+    </div>
+
+    <div class="target-row" id="targetRow">
+      <label class="target-label" for="targetInput">Target</label>
+      <input
+        type="number"
+        id="targetInput"
+        class="target-input"
+        placeholder="None"
+        min="0"
+        inputmode="numeric"
+      />
+      <div class="target-progress">
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <span class="progress-text" id="progressText">—</span>
+      </div>
+    </div>
+
+    <textarea
+      id="textInput"
+      class="text-input"
+      placeholder="Start typing or paste your text here…"
+      spellcheck="true"
+    ></textarea>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="actions">
+      <button class="btn btn-neutral" id="clearBtn" type="button">Clear</button>
+      <button class="btn btn-primary" id="copyBtn" type="button">Copy text</button>
+    </div>
+  </main>
+
+  <script>
+    const textInput = document.getElementById("textInput");
+    const heroNumber = document.getElementById("heroNumber");
+    const heroLabel = document.getElementById("heroLabel");
+    const hero = document.getElementById("hero");
+    const statsEl = document.getElementById("stats");
+    const targetInput = document.getElementById("targetInput");
+    const targetRow = document.getElementById("targetRow");
+    const progressFill = document.getElementById("progressFill");
+    const progressText = document.getElementById("progressText");
+    const copyBtn = document.getElementById("copyBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const chips = document.querySelectorAll(".chip");
+
+    const nf = new Intl.NumberFormat("en-US");
+
+    const state = {
+      mode: "words", // "words" | "chars"
+      targets: { words: null, chars: null },
+    };
+
+    function computeStats(text) {
+      const trimmed = text.trim();
+      const words = trimmed === "" ? 0 : trimmed.split(/\s+/).length;
+      const charsWith = text.length;
+      const charsWithout = text.replace(/\s/g, "").length;
+      const sentences =
+        trimmed === ""
+          ? 0
+          : (text.match(/[^.!?\n]+[.!?]+(?:\s|$)/g) || []).length ||
+            (trimmed ? 1 : 0);
+      const paragraphs =
+        trimmed === ""
+          ? 0
+          : text.split(/\n\s*\n/).filter((p) => p.trim().length > 0).length || 1;
+      const readingMinutes = words === 0 ? 0 : Math.max(1, Math.round(words / 200));
+      return { words, charsWith, charsWithout, sentences, paragraphs, readingMinutes };
+    }
+
+    function formatReadingTime(min) {
+      if (min === 0) return "0 min";
+      return min === 1 ? "1 min" : `${min} min`;
+    }
+
+    function applyHeroColor(value, target) {
+      hero.classList.remove("is-warning", "is-critical");
+      progressFill.classList.remove("is-warning", "is-critical");
+      progressText.classList.remove("is-warning", "is-critical");
+      targetRow.classList.remove("is-set", "is-warning", "is-critical");
+
+      if (!target || target <= 0) {
+        progressFill.style.width = "0%";
+        progressText.textContent = "—";
+        return;
+      }
+
+      targetRow.classList.add("is-set");
+      const pct = (value / target) * 100;
+      const clamped = Math.min(100, pct);
+      progressFill.style.width = `${clamped}%`;
+      progressText.textContent = `${nf.format(value)} / ${nf.format(target)} · ${Math.round(pct)}%`;
+
+      if (pct >= 100) {
+        hero.classList.add("is-critical");
+        progressFill.classList.add("is-critical");
+        progressText.classList.add("is-critical");
+        targetRow.classList.remove("is-set");
+        targetRow.classList.add("is-critical");
+      } else if (pct >= 80) {
+        hero.classList.add("is-warning");
+        progressFill.classList.add("is-warning");
+        progressText.classList.add("is-warning");
+        targetRow.classList.remove("is-set");
+        targetRow.classList.add("is-warning");
+      }
+    }
+
+    function render() {
+      const text = textInput.value;
+      const s = computeStats(text);
+
+      const heroValue = state.mode === "words" ? s.words : s.charsWith;
+      heroNumber.textContent = nf.format(heroValue);
+      heroLabel.textContent = state.mode === "words" ? "words" : "characters";
+
+      const target = state.targets[state.mode];
+      applyHeroColor(heroValue, target);
+
+      // Build stats grid — exclude the metric currently shown as hero
+      const items = [];
+      if (state.mode !== "words") {
+        items.push({ label: "Words", value: nf.format(s.words) });
+      }
+      if (state.mode === "words") {
+        items.push({ label: "Characters", value: nf.format(s.charsWith) });
+      }
+      items.push({ label: "No spaces", value: nf.format(s.charsWithout) });
+      items.push({ label: "Sentences", value: nf.format(s.sentences) });
+      items.push({ label: "Paragraphs", value: nf.format(s.paragraphs) });
+      items.push({ label: "Reading", value: formatReadingTime(s.readingMinutes) });
+
+      statsEl.innerHTML = items
+        .map(
+          (i) =>
+            `<div class="stat"><span class="stat-value">${i.value}</span><span class="stat-label">${i.label}</span></div>`
+        )
+        .join("");
+
+      copyBtn.disabled = text.length === 0;
+      clearBtn.disabled = text.length === 0;
+    }
+
+    function syncTargetInput() {
+      const t = state.targets[state.mode];
+      targetInput.value = t == null ? "" : t;
+      targetInput.placeholder = state.mode === "words" ? "e.g. 500" : "e.g. 2800";
+    }
+
+    textInput.addEventListener("input", render);
+
+    targetInput.addEventListener("input", () => {
+      const raw = targetInput.value.trim();
+      const num = raw === "" ? null : Math.max(0, parseInt(raw, 10) || 0);
+      state.targets[state.mode] = num && num > 0 ? num : null;
+      render();
+    });
+
+    chips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const mode = chip.dataset.mode;
+        if (mode === state.mode) return;
+        state.mode = mode;
+        chips.forEach((c) => {
+          const active = c.dataset.mode === mode;
+          c.classList.toggle("is-active", active);
+          c.setAttribute("aria-selected", active ? "true" : "false");
+        });
+        syncTargetInput();
+        render();
+      });
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      if (!textInput.value) return;
+      try {
+        await navigator.clipboard.writeText(textInput.value);
+      } catch {
+        textInput.select();
+        document.execCommand("copy");
+      }
+      const original = copyBtn.textContent;
+      copyBtn.textContent = "Copied";
+      copyBtn.classList.add("is-copied");
+      setTimeout(() => {
+        copyBtn.textContent = original;
+        copyBtn.classList.remove("is-copied");
+      }, 1400);
+    });
+
+    clearBtn.addEventListener("click", () => {
+      if (!textInput.value) return;
+      textInput.value = "";
+      textInput.focus();
+      render();
+    });
+
+    syncTargetInput();
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Unit Converter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  /* Brand */
+  --blue: #155A9E;
+  --blue-dark: #0e4278;
+  --blue-light: #e8f0f9;
+  --blue-border: #7aadd4;
+  --purple: #F067AF;
+  --purple-dark: #d44d96;
+  --purple-light: #fef0f7;
+  --purple-border: #f7aed8;
+  --purple-soft: #fde3f1;
+  --purple-btn: #f49ccc;
+
+  /* Status */
+  --green: #22c55e;
+  --orange: #f97316;
+  --orange-light: #fff1e6;
+  --orange-border: #fbbf85;
+  --red: #ef4444;
+  --red-light: #fee2e2;
+  --red-border: #fca5a5;
+
+  /* Neutrals */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+
+  /* Fonts */
+  --font-display: 'Nunito', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+
+  /* Accent (rebound at runtime) */
+  --accent: var(--blue);
+  --accent-dark: var(--blue-dark);
+  --accent-light: var(--blue-light);
+  --accent-border: var(--blue-border);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: #fff;
+  color: var(--gray-900);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 16px 48px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--gray-400);
+}
+.title {
+  font-size: clamp(18px, 3.5vw, 26px);
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+/* Category pills */
+.category-pills {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.pill {
+  padding: 9px 18px;
+  border-radius: 99px;
+  border: 2px solid var(--gray-200);
+  background: #fff;
+  color: var(--gray-600);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.25s, color 0.25s;
+}
+.pill:hover { border-color: var(--accent-border); }
+.pill.active {
+  background: var(--accent-light);
+  border-color: var(--accent-border);
+  color: var(--accent-dark);
+}
+
+/* Hero */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 0 6px;
+}
+.hero-caption {
+  font-size: clamp(13px, 2vw, 15px);
+  font-weight: 600;
+  color: var(--gray-500);
+  transition: color 0.3s;
+}
+.hero-number {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(56px, 14vw, 120px);
+  letter-spacing: -3px;
+  color: var(--accent);
+  line-height: 1;
+  transition: color 0.4s;
+  overflow-wrap: anywhere;
+  text-align: center;
+  max-width: 100%;
+}
+.hero-unit {
+  font-size: clamp(13px, 2.5vw, 18px);
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+
+/* Panels */
+.panel {
+  background: var(--gray-50);
+  border: 2px solid var(--gray-200);
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: background 0.25s, border-color 0.25s;
+}
+.panel-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--gray-500);
+}
+
+/* Input */
+.value-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid var(--gray-200);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gray-900);
+  background: #fff;
+  transition: border-color 0.2s;
+}
+.value-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.value-input::-webkit-outer-spin-button,
+.value-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.value-input { -moz-appearance: textfield; }
+
+/* Unit chips */
+.unit-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.chip {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 2px solid var(--gray-200);
+  background: #fff;
+  color: var(--gray-600);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.2s, color 0.2s;
+}
+.chip:hover { border-color: var(--accent-border); }
+.chip.active {
+  background: var(--accent-light);
+  border-color: var(--accent-border);
+  color: var(--accent-dark);
+}
+
+/* Swap */
+.swap-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.swap-line {
+  flex: 1;
+  height: 1px;
+  background: var(--gray-100);
+}
+.swap-btn {
+  background: #fff;
+  border: 2px solid var(--gray-200);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--gray-500);
+  transition: border-color 0.2s, color 0.2s, transform 0.3s;
+}
+.swap-btn:hover {
+  border-color: var(--accent-border);
+  color: var(--accent-dark);
+}
+.swap-btn:active { transform: rotate(180deg); }
+.swap-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+</style>
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <span class="eyebrow">Converter</span>
+      <h1 class="title">Unit Converter</h1>
+    </header>
+
+    <div class="category-pills" id="categoryPills" role="tablist">
+      <button class="pill active" data-category="length" role="tab">Length</button>
+      <button class="pill" data-category="weight" role="tab">Weight</button>
+      <button class="pill" data-category="temperature" role="tab">Temperature</button>
+    </div>
+
+    <section class="hero" aria-live="polite">
+      <div class="hero-caption" id="heroCaption">1 meter equals</div>
+      <div class="hero-number" id="heroNumber">3.281</div>
+      <div class="hero-unit" id="heroUnit">feet</div>
+    </section>
+
+    <section class="panel">
+      <span class="panel-label">From</span>
+      <input type="number" inputmode="decimal" class="value-input" id="valueInput" value="1" step="any" aria-label="Value to convert" />
+      <div class="unit-chips" id="fromChips"></div>
+    </section>
+
+    <div class="swap-row">
+      <span class="swap-line"></span>
+      <button class="swap-btn" id="swapBtn" title="Swap units" aria-label="Swap units">
+        <svg viewBox="0 0 24 24"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+      </button>
+      <span class="swap-line"></span>
+    </div>
+
+    <section class="panel">
+      <span class="panel-label">To</span>
+      <div class="unit-chips" id="toChips"></div>
+    </section>
+
+  </main>
+
+<script>
+const categories = {
+  length: {
+    color: 'blue',
+    defaultFrom: 'm',
+    defaultTo: 'ft',
+    defaultValue: 1,
+    units: {
+      mm: { name: 'millimeters', singular: 'millimeter', factor: 0.001 },
+      cm: { name: 'centimeters', singular: 'centimeter', factor: 0.01 },
+      m:  { name: 'meters',      singular: 'meter',      factor: 1 },
+      km: { name: 'kilometers',  singular: 'kilometer',  factor: 1000 },
+      in: { name: 'inches',      singular: 'inch',       factor: 0.0254 },
+      ft: { name: 'feet',        singular: 'foot',       factor: 0.3048 },
+      yd: { name: 'yards',       singular: 'yard',       factor: 0.9144 },
+      mi: { name: 'miles',       singular: 'mile',       factor: 1609.344 }
+    }
+  },
+  weight: {
+    color: 'purple',
+    defaultFrom: 'kg',
+    defaultTo: 'lb',
+    defaultValue: 1,
+    units: {
+      mg: { name: 'milligrams', singular: 'milligram', factor: 0.001 },
+      g:  { name: 'grams',      singular: 'gram',      factor: 1 },
+      kg: { name: 'kilograms',  singular: 'kilogram',  factor: 1000 },
+      t:  { name: 'metric tons',singular: 'metric ton',factor: 1_000_000 },
+      oz: { name: 'ounces',     singular: 'ounce',     factor: 28.349523125 },
+      lb: { name: 'pounds',     singular: 'pound',     factor: 453.59237 },
+      st: { name: 'stone',      singular: 'stone',     factor: 6350.29318 }
+    }
+  },
+  temperature: {
+    color: 'blue', // shifts to orange/red based on value
+    defaultFrom: 'C',
+    defaultTo: 'F',
+    defaultValue: 20,
+    units: {
+      C: { name: 'Celsius',    singular: 'Celsius',    symbol: '°C' },
+      F: { name: 'Fahrenheit', singular: 'Fahrenheit', symbol: '°F' },
+      K: { name: 'Kelvin',     singular: 'Kelvin',     symbol: 'K'  }
+    }
+  }
+};
+
+const state = {
+  category: 'length',
+  fromUnit: 'm',
+  toUnit: 'ft',
+  value: 1
+};
+
+const accentPalettes = {
+  blue:   { a: '--blue',   d: '--blue-dark',   l: '--blue-light',   b: '--blue-border' },
+  purple: { a: '--purple', d: '--purple-dark', l: '--purple-light', b: '--purple-border' },
+  orange: { a: '--orange', d: '--orange',      l: '--orange-light', b: '--orange-border' },
+  red:    { a: '--red',    d: '--red',         l: '--red-light',    b: '--red-border' }
+};
+
+function setAccent(color) {
+  const p = accentPalettes[color] || accentPalettes.blue;
+  const root = document.documentElement;
+  root.style.setProperty('--accent',        `var(${p.a})`);
+  root.style.setProperty('--accent-dark',   `var(${p.d})`);
+  root.style.setProperty('--accent-light',  `var(${p.l})`);
+  root.style.setProperty('--accent-border', `var(${p.b})`);
+}
+
+function tempToCelsius(v, u) {
+  if (u === 'C') return v;
+  if (u === 'F') return (v - 32) * 5 / 9;
+  if (u === 'K') return v - 273.15;
+}
+function tempFromCelsius(c, u) {
+  if (u === 'C') return c;
+  if (u === 'F') return c * 9 / 5 + 32;
+  if (u === 'K') return c + 273.15;
+}
+
+function convert(value, fromUnit, toUnit, category) {
+  if (category === 'temperature') {
+    return tempFromCelsius(tempToCelsius(value, fromUnit), toUnit);
+  }
+  const units = categories[category].units;
+  return value * units[fromUnit].factor / units[toUnit].factor;
+}
+
+function formatNumber(n) {
+  if (!Number.isFinite(n)) return '—';
+  const abs = Math.abs(n);
+  if (abs === 0) return '0';
+  if (abs >= 1e9 || abs < 1e-4) return n.toExponential(3);
+  let s = n.toPrecision(6);
+  if (s.indexOf('.') >= 0 && s.indexOf('e') < 0) {
+    s = s.replace(/0+$/, '').replace(/\.$/, '');
+  }
+  const [intPart, decPart] = s.split('.');
+  const formatted = Number(intPart).toLocaleString('en-US');
+  return decPart ? `${formatted}.${decPart}` : formatted;
+}
+
+function unitLabel(category, unitKey, plural) {
+  const u = categories[category].units[unitKey];
+  if (category === 'temperature') return u.symbol;
+  return plural ? u.name : u.singular;
+}
+
+function buildChips(containerId, currentKey, onPick) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  const units = categories[state.category].units;
+  Object.keys(units).forEach(key => {
+    const btn = document.createElement('button');
+    btn.className = 'chip' + (key === currentKey ? ' active' : '');
+    btn.textContent = state.category === 'temperature' ? units[key].symbol : key;
+    btn.title = units[key].name;
+    btn.addEventListener('click', () => onPick(key));
+    container.appendChild(btn);
+  });
+}
+
+function updateAccent() {
+  if (state.category === 'temperature') {
+    const c = tempToCelsius(state.value || 0, state.fromUnit);
+    if (c >= 60) setAccent('red');
+    else if (c >= 30) setAccent('orange');
+    else setAccent('blue');
+  } else {
+    setAccent(categories[state.category].color);
+  }
+}
+
+function render() {
+  updateAccent();
+
+  // Active pill
+  document.querySelectorAll('#categoryPills .pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.category === state.category);
+  });
+
+  // Chips
+  buildChips('fromChips', state.fromUnit, (k) => { state.fromUnit = k; render(); });
+  buildChips('toChips',   state.toUnit,   (k) => { state.toUnit   = k; render(); });
+
+  // Hero result
+  const result = convert(state.value || 0, state.fromUnit, state.toUnit, state.category);
+  document.getElementById('heroNumber').textContent = formatNumber(result);
+
+  // Hero caption + unit label
+  const isPluralFrom = (state.value || 0) !== 1 && (state.value || 0) !== -1;
+  const isPluralTo = result !== 1 && result !== -1;
+  const fromLabel = unitLabel(state.category, state.fromUnit, isPluralFrom);
+  const toLabel = unitLabel(state.category, state.toUnit, isPluralTo);
+  const valueDisplay = formatNumber(state.value || 0);
+
+  if (state.category === 'temperature') {
+    document.getElementById('heroCaption').textContent = `${valueDisplay} ${fromLabel} equals`;
+  } else {
+    document.getElementById('heroCaption').textContent = `${valueDisplay} ${fromLabel} equals`;
+  }
+  document.getElementById('heroUnit').textContent = toLabel;
+}
+
+// Events
+document.getElementById('valueInput').addEventListener('input', (e) => {
+  const v = parseFloat(e.target.value);
+  state.value = isNaN(v) ? 0 : v;
+  render();
+});
+
+document.querySelectorAll('#categoryPills .pill').forEach(p => {
+  p.addEventListener('click', () => {
+    if (state.category === p.dataset.category) return;
+    state.category = p.dataset.category;
+    const c = categories[state.category];
+    state.fromUnit = c.defaultFrom;
+    state.toUnit = c.defaultTo;
+    state.value = c.defaultValue;
+    document.getElementById('valueInput').value = state.value;
+    render();
+  });
+});
+
+document.getElementById('swapBtn').addEventListener('click', () => {
+  const tmp = state.fromUnit;
+  state.fromUnit = state.toUnit;
+  state.toUnit = tmp;
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

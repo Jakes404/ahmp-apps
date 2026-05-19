@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Decision Wheel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue: #155A9E;
+      --blue-dark: #0e4278;
+      --blue-light: #e8f0f9;
+      --blue-border: #7aadd4;
+      --purple: #F067AF;
+      --purple-dark: #d44d96;
+      --purple-light: #fef0f7;
+      --purple-border: #f7aed8;
+      --purple-soft: #fde3f1;
+      --purple-btn: #f49ccc;
+      --green: #22c55e;
+      --green-dark: #16a34a;
+      --orange: #f97316;
+      --red: #ef4444;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --font-display: 'Nunito', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: var(--font-body);
+      background: white;
+      color: var(--gray-900);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 16px 48px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-400);
+    }
+
+    .title {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: clamp(22px, 4vw, 32px);
+      color: var(--gray-900);
+      letter-spacing: -1px;
+    }
+
+    /* Wheel */
+    .wheel-stage {
+      position: relative;
+      width: clamp(280px, 82vw, 460px);
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pointer {
+      position: absolute;
+      top: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 32px;
+      height: 42px;
+      z-index: 5;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.18));
+    }
+
+    .wheel-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      will-change: transform;
+    }
+
+    .wheel-svg.spinning {
+      transition: transform 5s cubic-bezier(0.17, 0.67, 0.21, 1);
+    }
+
+    .wheel-hub {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid var(--gray-200);
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .wheel-hub[hidden] { display: none; }
+
+    .wheel-empty {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    .wheel-empty-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 44px;
+      height: 44px;
+      color: var(--gray-300);
+    }
+
+    .wheel-empty-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, 36px);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-500);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .wheel-empty[hidden] { display: none; }
+
+    /* Spin button */
+    .spin-btn {
+      background: var(--green);
+      color: white;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 19px;
+      border: none;
+      border-radius: 12px;
+      padding: 13px 42px;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 14px rgba(34,197,94,0.25);
+      letter-spacing: 0.02em;
+    }
+
+    .spin-btn:hover:not(:disabled) {
+      background: var(--green-dark);
+      box-shadow: 0 6px 18px rgba(34,197,94,0.35);
+    }
+
+    .spin-btn:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .spin-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Toggle */
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray-600);
+      user-select: none;
+      transition: color 0.2s;
+    }
+
+    .toggle input { display: none; }
+
+    .toggle-track {
+      width: 44px;
+      height: 24px;
+      background: var(--gray-300);
+      border-radius: 99px;
+      position: relative;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      transition: transform 0.2s;
+    }
+
+    .toggle input:checked ~ .toggle-track {
+      background: var(--purple);
+    }
+
+    .toggle input:checked ~ .toggle-track .toggle-thumb {
+      transform: translateX(20px);
+    }
+
+    .toggle:has(input:checked) {
+      color: var(--purple-dark);
+    }
+
+    /* Section */
+    .section {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .section-count {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-400);
+    }
+
+    .entries-input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .entry-input {
+      flex: 1;
+      min-width: 0;
+      padding: 9px 14px;
+      border-radius: 8px;
+      border: 2px solid var(--gray-200);
+      font-family: var(--font-body);
+      font-size: 15px;
+      color: var(--gray-900);
+      background: white;
+      transition: border-color 0.2s;
+    }
+
+    .entry-input::placeholder {
+      color: var(--gray-400);
+    }
+
+    .entry-input:focus {
+      outline: none;
+      border-color: var(--blue);
+    }
+
+    .add-btn {
+      background: var(--blue);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .add-btn:hover { background: var(--blue-dark); }
+
+    .add-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .entries-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 32px;
+      align-items: flex-start;
+    }
+
+    .entries-empty {
+      font-size: 13px;
+      color: var(--gray-400);
+      padding: 6px 2px;
+    }
+
+    .entry-chip {
+      background: white;
+      border: 2px solid var(--gray-200);
+      color: var(--gray-600);
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 13px;
+      border-radius: 8px;
+      padding: 6px 8px 6px 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      max-width: 100%;
+    }
+
+    .entry-chip-text {
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .entry-chip:hover {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .entry-chip:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .entry-chip:disabled:hover {
+      border-color: var(--gray-200);
+      color: var(--gray-600);
+    }
+
+    .entry-chip-x {
+      width: 14px;
+      height: 14px;
+      stroke-width: 2.5;
+      flex-shrink: 0;
+    }
+
+    .clear-btn {
+      background: transparent;
+      border: 2px solid var(--gray-200);
+      color: var(--gray-500);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .clear-btn:hover {
+      border-color: var(--gray-400);
+      color: var(--gray-800);
+    }
+
+    .clear-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Result panel */
+    .result-panel {
+      width: 100%;
+      background: var(--blue-light);
+      border: 2px solid var(--blue-border);
+      border-radius: 14px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-align: center;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      border-width: 0;
+      transition: max-height 0.35s ease, opacity 0.25s ease, padding 0.3s ease, border-width 0.3s ease;
+      pointer-events: none;
+    }
+
+    .result-panel.visible {
+      max-height: 140px;
+      opacity: 1;
+      padding: 18px 20px;
+      border-width: 2px;
+      pointer-events: auto;
+    }
+
+    .result-winner {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: clamp(26px, 6vw, 46px);
+      color: var(--blue-dark);
+      letter-spacing: -1px;
+      line-height: 1.1;
+      word-break: break-word;
+    }
+
+    .result-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--blue-border);
+      margin-bottom: 2px;
+    }
+
+    /* Spin row + fullscreen toggle */
+    .spin-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: 2px solid var(--gray-200);
+      border-radius: 8px;
+      color: var(--gray-500);
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--gray-400);
+      color: var(--gray-800);
+    }
+
+    /* Fullscreen overlay */
+    .fs-overlay {
+      position: fixed;
+      inset: 0;
+      background: white;
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      /* top padding clears the exit btn; bottom padding reserves space for spin btn + result */
+      padding: 60px 16px 260px;
+    }
+
+    .fs-overlay.active {
+      display: flex;
+    }
+
+    .fs-overlay .wheel-stage {
+      /* vmin so it scales nicely in both landscape and portrait */
+      width: min(80vmin, 560px) !important;
+    }
+
+    /* Result panel — pinned just above the spin button, never squishes the wheel */
+    .fs-overlay .result-panel {
+      position: absolute;
+      bottom: 150px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(480px, 88vw);
+    }
+
+    /* Circular floating spin button — pinned at bottom centre */
+    .fs-spin-btn {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--green);
+      border: none;
+      color: white;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(34, 197, 94, 0.35);
+      transition: background 0.2s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .fs-spin-btn:hover:not(:disabled) {
+      background: var(--green-dark);
+      box-shadow: 0 6px 24px rgba(34, 197, 94, 0.45);
+    }
+
+    .fs-spin-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* X exit button — top-right */
+    .fs-exit-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: transparent;
+      border: 2px solid var(--gray-200);
+      color: var(--gray-500);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .fs-exit-btn:hover {
+      border-color: var(--gray-400);
+      color: var(--gray-800);
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <span class="eyebrow">Decision Wheel</span>
+      <h1 class="title">Spin to decide</h1>
+    </div>
+
+    <div class="wheel-stage">
+      <svg class="pointer" viewBox="0 0 32 42" aria-hidden="true">
+        <path d="M 16 40 L 3 6 Q 16 -1 29 6 Z" fill="#1f2937"/>
+        <circle cx="16" cy="8" r="3" fill="white"/>
+      </svg>
+      <svg class="wheel-svg" id="wheel" viewBox="-105 -105 210 210" aria-label="Decision wheel">
+        <circle cx="0" cy="0" r="100" fill="var(--gray-50)" stroke="var(--gray-200)" stroke-width="2"/>
+      </svg>
+      <div class="wheel-hub" id="wheelHub" aria-hidden="true"></div>
+      <div class="wheel-empty" id="wheelEmpty">
+        <svg class="wheel-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="12" y1="3" x2="12" y2="21"/>
+        </svg>
+        <div class="wheel-empty-text">Add at least 2 entries to spin</div>
+      </div>
+    </div>
+
+    <div class="result-panel" id="resultPanel">
+      <span class="result-label">Winner</span>
+      <div class="result-winner" id="resultName"></div>
+    </div>
+
+    <div class="spin-row">
+      <button class="spin-btn" id="spinBtn" disabled>SPIN</button>
+      <button class="icon-btn" id="fsToggleBtn" title="Enter fullscreen" aria-label="Enter fullscreen">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+          <path d="M21 8V5a2 2 0 0 0-2-2h-3"/>
+          <path d="M3 16v3a2 2 0 0 0 2 2h3"/>
+          <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+        </svg>
+      </button>
+    </div>
+
+    <label class="toggle">
+      <input type="checkbox" id="removeWinnerToggle" />
+      <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      <span>Remove winner after spin</span>
+    </label>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="eyebrow">Entries</span>
+        <span class="section-count" id="entryCount">0</span>
+      </div>
+      <div class="entries-input-row">
+        <input class="entry-input" id="entryInput" placeholder="Add an entry — or paste a list" maxlength="60" autocomplete="off" />
+        <button class="add-btn" id="addBtn">Add</button>
+      </div>
+      <div class="entries-list" id="entriesList">
+        <span class="entries-empty">No entries yet — add some above.</span>
+      </div>
+      <div>
+        <button class="clear-btn" id="clearBtn" disabled>Clear all</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="fs-overlay" id="fsOverlay">
+    <button class="fs-spin-btn" id="fsSpinBtn" disabled>SPIN</button>
+    <button class="fs-exit-btn" id="fsExitBtn" title="Exit fullscreen" aria-label="Exit fullscreen">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="6" y1="6" x2="18" y2="18"/>
+        <line x1="18" y1="6" x2="6" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <script>
+    'use strict';
+
+    const SLICE_COLORS = [
+      '#155A9E', // blue
+      '#F067AF', // purple
+      '#0e4278', // blue-dark
+      '#d44d96', // purple-dark
+    ];
+
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+
+    const state = {
+      entries: [],
+      isSpinning: false,
+      currentRotation: 0,
+      pendingPostSpinReset: false,
+      isFullscreen: false,
+    };
+
+    const els = {
+      wheel: document.getElementById('wheel'),
+      wheelEmpty: document.getElementById('wheelEmpty'),
+      wheelHub: document.getElementById('wheelHub'),
+      wheelStage: document.querySelector('.wheel-stage'),
+      spinBtn: document.getElementById('spinBtn'),
+      spinRow: document.querySelector('.spin-row'),
+      entryInput: document.getElementById('entryInput'),
+      addBtn: document.getElementById('addBtn'),
+      entriesList: document.getElementById('entriesList'),
+      entryCount: document.getElementById('entryCount'),
+      clearBtn: document.getElementById('clearBtn'),
+      removeWinnerToggle: document.getElementById('removeWinnerToggle'),
+      resultPanel: document.getElementById('resultPanel'),
+      resultName: document.getElementById('resultName'),
+      fsToggleBtn: document.getElementById('fsToggleBtn'),
+      fsOverlay: document.getElementById('fsOverlay'),
+      fsExitBtn: document.getElementById('fsExitBtn'),
+      fsSpinBtn: document.getElementById('fsSpinBtn'),
+    };
+
+    // ---------- Color picking (avoid adjacent clashes) ----------
+    function colorForSlice(i, n) {
+      const palette = SLICE_COLORS.length;
+      if (n === 1) return SLICE_COLORS[0];
+      let idx = i % palette;
+      // Avoid first/last clash when n doesn't divide evenly
+      if (i === n - 1 && idx === 0) {
+        idx = 2;
+      }
+      return SLICE_COLORS[idx];
+    }
+
+    // ---------- Wheel rendering ----------
+    function renderWheel() {
+      els.wheel.innerHTML = '';
+      const n = state.entries.length;
+
+      if (n === 0) {
+        const bg = document.createElementNS(SVG_NS, 'circle');
+        bg.setAttribute('cx', '0');
+        bg.setAttribute('cy', '0');
+        bg.setAttribute('r', '100');
+        bg.setAttribute('fill', 'var(--gray-50)');
+        bg.setAttribute('stroke', 'var(--gray-200)');
+        bg.setAttribute('stroke-width', '2');
+        els.wheel.appendChild(bg);
+        els.wheelEmpty.hidden = false;
+        els.wheelHub.hidden = true;
+        return;
+      }
+
+      els.wheelEmpty.hidden = true;
+      els.wheelHub.hidden = false;
+
+      if (n === 1) {
+        const c = document.createElementNS(SVG_NS, 'circle');
+        c.setAttribute('cx', '0');
+        c.setAttribute('cy', '0');
+        c.setAttribute('r', '100');
+        c.setAttribute('fill', SLICE_COLORS[0]);
+        c.setAttribute('stroke', 'white');
+        c.setAttribute('stroke-width', '2');
+        els.wheel.appendChild(c);
+        els.wheel.appendChild(buildSingleEntryText(state.entries[0]));
+        return;
+      }
+
+      const sliceAngle = 360 / n;
+
+      for (let i = 0; i < n; i++) {
+        const startAngle = i * sliceAngle - 90 - sliceAngle / 2;
+        const endAngle = startAngle + sliceAngle;
+        const r = 100;
+
+        const x1 = Math.cos((startAngle * Math.PI) / 180) * r;
+        const y1 = Math.sin((startAngle * Math.PI) / 180) * r;
+        const x2 = Math.cos((endAngle * Math.PI) / 180) * r;
+        const y2 = Math.sin((endAngle * Math.PI) / 180) * r;
+        const largeArc = sliceAngle > 180 ? 1 : 0;
+
+        const path = document.createElementNS(SVG_NS, 'path');
+        path.setAttribute('d', `M 0 0 L ${x1.toFixed(3)} ${y1.toFixed(3)} A ${r} ${r} 0 ${largeArc} 1 ${x2.toFixed(3)} ${y2.toFixed(3)} Z`);
+        path.setAttribute('fill', colorForSlice(i, n));
+        path.setAttribute('stroke', 'white');
+        path.setAttribute('stroke-width', '2');
+        path.setAttribute('stroke-linejoin', 'round');
+        els.wheel.appendChild(path);
+
+        const midAngle = startAngle + sliceAngle / 2;
+        els.wheel.appendChild(buildSliceLabel(state.entries[i], midAngle, n));
+      }
+
+      // Outer ring for definition
+      const ring = document.createElementNS(SVG_NS, 'circle');
+      ring.setAttribute('cx', '0');
+      ring.setAttribute('cy', '0');
+      ring.setAttribute('r', '100');
+      ring.setAttribute('fill', 'none');
+      ring.setAttribute('stroke', 'white');
+      ring.setAttribute('stroke-width', '4');
+      els.wheel.appendChild(ring);
+    }
+
+    function buildSliceLabel(label, midAngle, n) {
+      // Position text centre along the radial at ~60% of radius
+      const r = 62;
+      const tx = Math.cos((midAngle * Math.PI) / 180) * r;
+      const ty = Math.sin((midAngle * Math.PI) / 180) * r;
+
+      const text = document.createElementNS(SVG_NS, 'text');
+      text.setAttribute('x', tx.toFixed(3));
+      text.setAttribute('y', ty.toFixed(3));
+      text.setAttribute('fill', 'white');
+      text.setAttribute('font-family', 'DM Sans, sans-serif');
+      text.setAttribute('font-weight', '700');
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('dominant-baseline', 'central');
+      // Rotate so text reads outward along the radial (centre → rim)
+      text.setAttribute('transform', `rotate(${midAngle.toFixed(3)}, ${tx.toFixed(3)}, ${ty.toFixed(3)})`);
+
+      // Radial space ≈ 64 viewBox units; cap chars so text stays inside the wheel
+      let fontSize, maxChars;
+      if (n <= 4)       { fontSize = 13; maxChars = 10; }
+      else if (n <= 6)  { fontSize = 12; maxChars = 10; }
+      else if (n <= 8)  { fontSize = 11; maxChars = 9; }
+      else if (n <= 12) { fontSize = 10; maxChars = 8; }
+      else              { fontSize = 9;  maxChars = 6; }
+
+      text.setAttribute('font-size', String(fontSize));
+      text.textContent = truncate(label, maxChars);
+      return text;
+    }
+
+    function buildSingleEntryText(label) {
+      const text = document.createElementNS(SVG_NS, 'text');
+      text.setAttribute('x', '0');
+      text.setAttribute('y', '0');
+      text.setAttribute('fill', 'white');
+      text.setAttribute('font-family', 'DM Sans, sans-serif');
+      text.setAttribute('font-weight', '700');
+      text.setAttribute('font-size', '14');
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('dominant-baseline', 'central');
+      text.textContent = truncate(label, 18);
+      return text;
+    }
+
+    function truncate(s, max) {
+      if (s.length <= max) return s;
+      return s.slice(0, max - 1).trimEnd() + '…';
+    }
+
+    // ---------- Entries list rendering ----------
+    function renderEntries() {
+      els.entriesList.innerHTML = '';
+      els.entryCount.textContent = String(state.entries.length);
+
+      if (state.entries.length === 0) {
+        const empty = document.createElement('span');
+        empty.className = 'entries-empty';
+        empty.textContent = 'No entries yet — add some above.';
+        els.entriesList.appendChild(empty);
+        els.clearBtn.disabled = true;
+        return;
+      }
+
+      els.clearBtn.disabled = state.isSpinning;
+
+      state.entries.forEach((entry, i) => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'entry-chip';
+        chip.title = 'Click to remove';
+        chip.disabled = state.isSpinning;
+
+        const txt = document.createElement('span');
+        txt.className = 'entry-chip-text';
+        txt.textContent = entry;
+        chip.appendChild(txt);
+
+        const x = document.createElementNS(SVG_NS, 'svg');
+        x.classList.add('entry-chip-x');
+        x.setAttribute('viewBox', '0 0 24 24');
+        x.setAttribute('fill', 'none');
+        x.setAttribute('stroke', 'currentColor');
+        x.setAttribute('stroke-linecap', 'round');
+        x.setAttribute('stroke-linejoin', 'round');
+        x.innerHTML = '<line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>';
+        chip.appendChild(x);
+
+        chip.addEventListener('click', () => removeEntry(i));
+        els.entriesList.appendChild(chip);
+      });
+    }
+
+    function updateSpinButton() {
+      const disabled = state.isSpinning || state.entries.length < 2;
+      els.spinBtn.disabled = disabled;
+      els.fsSpinBtn.disabled = disabled;
+    }
+
+    // ---------- Entry actions ----------
+    function addEntry() {
+      const val = els.entryInput.value.trim();
+      if (!val) return;
+      state.entries.push(val);
+      els.entryInput.value = '';
+      renderEntries();
+      renderWheel();
+      updateSpinButton();
+      els.entryInput.focus();
+    }
+
+    function removeEntry(idx) {
+      if (state.isSpinning) return;
+      state.entries.splice(idx, 1);
+      renderEntries();
+      renderWheel();
+      updateSpinButton();
+    }
+
+    function clearAll() {
+      if (state.isSpinning) return;
+      if (state.entries.length === 0) return;
+      if (!confirm('Remove all entries?')) return;
+      state.entries = [];
+      // Reset rotation visually for a clean slate
+      els.wheel.classList.remove('spinning');
+      state.currentRotation = 0;
+      els.wheel.style.transform = 'rotate(0deg)';
+      renderEntries();
+      renderWheel();
+      updateSpinButton();
+    }
+
+    // ---------- Audio (tick) ----------
+    let audioCtx = null;
+
+    function ensureAudio() {
+      if (audioCtx) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return;
+      }
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (Ctx) audioCtx = new Ctx();
+      } catch (e) {
+        audioCtx = null;
+      }
+    }
+
+    function playTick() {
+      if (!audioCtx) return;
+      const t = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(1100, t);
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.05, t + 0.002);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.045);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + 0.06);
+    }
+
+    // ---------- Spin logic ----------
+    function spin() {
+      if (state.isSpinning || state.entries.length < 2) return;
+
+      // Hide result panel from previous spin
+      els.resultPanel.classList.remove('visible');
+
+      // If winner was removed last spin, reset wheel now before re-rendering
+      if (state.pendingPostSpinReset) {
+        state.pendingPostSpinReset = false;
+        els.wheel.classList.remove('spinning');
+        els.wheel.style.transition = 'none';
+        state.currentRotation = 0;
+        els.wheel.style.transform = 'rotate(0deg)';
+        void els.wheel.getBoundingClientRect();
+        renderWheel();
+      }
+
+      ensureAudio();
+      state.isSpinning = true;
+      updateSpinButton();
+      renderEntries(); // re-render chips disabled
+
+      const n = state.entries.length;
+      const sliceAngle = 360 / n;
+      const winnerIndex = Math.floor(Math.random() * n);
+
+      // Wheel rotation so slice `winnerIndex` sits under the pointer (top).
+      // Slice i's centre is originally at -90° (math) when i = 0; we rotate CW by R.
+      // Need: i*sliceAngle - 90 + R ≡ -90 (mod 360) → R ≡ -i*sliceAngle (mod 360).
+      const baseTarget = (360 - winnerIndex * sliceAngle) % 360;
+      const jitter = (Math.random() - 0.5) * sliceAngle * 0.7; // within slice, not on the edge
+      const fromMod = ((state.currentRotation % 360) + 360) % 360;
+      const turns = 6 + Math.floor(Math.random() * 3);
+      const targetMod = (baseTarget + jitter + 360) % 360;
+      let delta = (targetMod - fromMod + 360) % 360;
+      delta += turns * 360;
+      const target = state.currentRotation + delta;
+
+      const duration = 5200 + Math.random() * 1200;
+      const startTime = performance.now();
+      const startRotation = state.currentRotation;
+
+      state.currentRotation = target;
+
+      els.wheel.classList.add('spinning');
+      els.wheel.style.transition = `transform ${duration}ms cubic-bezier(0.17, 0.67, 0.21, 1)`;
+      // Force reflow before setting the new transform so transition picks up
+      void els.wheel.getBoundingClientRect();
+      els.wheel.style.transform = `rotate(${target}deg)`;
+
+      // Track ticks via rAF
+      let lastTickSlice = sliceUnderPointer(startRotation, sliceAngle, n);
+
+      function frame(now) {
+        const elapsed = now - startTime;
+        if (elapsed >= duration) {
+          finishSpin(winnerIndex);
+          return;
+        }
+        const t = elapsed / duration;
+        const eased = 1 - Math.pow(1 - t, 3);
+        const angle = startRotation + (target - startRotation) * eased;
+        const idx = sliceUnderPointer(angle, sliceAngle, n);
+        if (idx !== lastTickSlice) {
+          lastTickSlice = idx;
+          playTick();
+        }
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function sliceUnderPointer(rotationDeg, sliceAngle, n) {
+      const norm = (((-rotationDeg) % 360) + 360) % 360;
+      return Math.floor((norm + sliceAngle / 2) / sliceAngle) % n;
+    }
+
+    function finishSpin(winnerIndex) {
+      state.isSpinning = false;
+      const winner = state.entries[winnerIndex];
+      els.resultName.textContent = winner;
+      els.resultPanel.classList.add('visible');
+
+      if (els.removeWinnerToggle.checked) {
+        state.entries.splice(winnerIndex, 1);
+        state.pendingPostSpinReset = true;
+      }
+      renderEntries();
+      updateSpinButton();
+    }
+
+    // ---------- Events ----------
+    els.addBtn.addEventListener('click', addEntry);
+    els.entryInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addEntry();
+      }
+    });
+    els.entryInput.addEventListener('paste', (e) => {
+      if (state.isSpinning) return;
+      const cb = e.clipboardData || window.clipboardData;
+      if (!cb) return;
+      const text = cb.getData('text');
+      if (!text) return;
+      const parts = text
+        .split(/[\r\n\t]+/)
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+      if (parts.length <= 1) return; // single-line paste → default behaviour
+      e.preventDefault();
+      const existing = els.entryInput.value.trim();
+      if (existing) state.entries.push(existing);
+      for (const p of parts) {
+        state.entries.push(p.length > 60 ? p.slice(0, 60) : p);
+      }
+      els.entryInput.value = '';
+      renderEntries();
+      renderWheel();
+      updateSpinButton();
+    });
+    els.clearBtn.addEventListener('click', clearAll);
+    els.spinBtn.addEventListener('click', spin);
+
+    // ---------- Fullscreen ----------
+    function enterFullscreen() {
+      els.fsOverlay.insertBefore(els.wheelStage, els.fsSpinBtn);
+      els.fsOverlay.insertBefore(els.resultPanel, els.fsSpinBtn);
+      els.fsOverlay.classList.add('active');
+      state.isFullscreen = true;
+      document.addEventListener('keydown', onFsKeydown);
+    }
+
+    function exitFullscreen() {
+      els.spinRow.parentElement.insertBefore(els.wheelStage, els.spinRow);
+      els.spinRow.parentElement.insertBefore(els.resultPanel, els.spinRow);
+      els.fsOverlay.classList.remove('active');
+      state.isFullscreen = false;
+      document.removeEventListener('keydown', onFsKeydown);
+    }
+
+    function onFsKeydown(e) {
+      if (e.key === 'Escape') exitFullscreen();
+      if ((e.key === ' ' || e.key === 'Enter') && !e.target.matches('input, button')) {
+        e.preventDefault();
+        spin();
+      }
+    }
+
+    els.fsToggleBtn.addEventListener('click', enterFullscreen);
+    els.fsExitBtn.addEventListener('click', exitFullscreen);
+    els.fsSpinBtn.addEventListener('click', spin);
+
+    // ---------- Init ----------
+    renderWheel();
+    renderEntries();
+    updateSpinButton();
+  </script>
+</body>
+</html>

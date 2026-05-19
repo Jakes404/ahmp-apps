@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Random Number Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+    --blue: #155A9E;
+    --blue-dark: #0e4278;
+    --blue-light: #e8f0f9;
+    --blue-border: #7aadd4;
+    --purple: #F067AF;
+    --purple-dark: #d44d96;
+    --purple-light: #fef0f7;
+    --purple-border: #f7aed8;
+    --purple-soft: #fde3f1;
+    --purple-btn: #f49ccc;
+    --green: #22c55e;
+    --green-dark: #16a34a;
+    --orange: #f97316;
+    --red: #ef4444;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --font-display: 'Nunito', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: var(--font-body);
+    background: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 28px 16px 48px;
+    color: var(--gray-900);
+}
+
+.column {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+}
+
+.eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray-400);
+    align-self: flex-start;
+}
+
+.hero {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(80px, 22vw, 190px);
+    letter-spacing: -3px;
+    color: var(--blue);
+    line-height: 1;
+    transition: color 0.4s ease;
+    user-select: none;
+    min-height: clamp(80px, 22vw, 190px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero.placeholder { color: var(--gray-300); }
+.hero.mode-purple { color: var(--purple); }
+.hero.mode-orange { color: var(--orange); }
+.hero.mode-red { color: var(--red); }
+
+.status-msg {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-400);
+    min-height: 18px;
+    text-align: center;
+    transition: color 0.2s ease;
+}
+
+.status-msg.warning { color: var(--orange); }
+.status-msg.error { color: var(--red); }
+
+.range-row {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray-400);
+}
+
+.field input {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gray-900);
+    background: #fff;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 9px 14px;
+    width: 100%;
+    transition: border-color 0.2s ease;
+    -moz-appearance: textfield;
+}
+.field input::-webkit-outer-spin-button,
+.field input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.field input:focus {
+    outline: none;
+    border-color: var(--blue);
+}
+
+body.purple-mode .field input:focus {
+    border-color: var(--purple);
+}
+
+.toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: var(--gray-300);
+    border-radius: 99px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+}
+
+.toggle:focus { outline: none; box-shadow: 0 0 0 3px var(--blue-light); }
+.toggle.on:focus { box-shadow: 0 0 0 3px var(--purple-light); }
+.toggle.on { background: var(--purple); }
+
+.toggle .thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease;
+}
+
+.toggle.on .thumb { transform: translateX(20px); }
+
+.toggle-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-500);
+    transition: color 0.2s ease;
+    user-select: none;
+    cursor: pointer;
+}
+
+.toggle.on ~ .toggle-label { color: var(--purple-dark); }
+
+.generate-btn {
+    font-family: var(--font-body);
+    font-size: 19px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--green);
+    border: none;
+    border-radius: 12px;
+    padding: 13px 38px;
+    cursor: pointer;
+    transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.generate-btn:hover:not(:disabled) { background: var(--green-dark); }
+.generate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.history-panel {
+    width: 100%;
+    background: var(--gray-50);
+    border: 2px solid var(--gray-200);
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.history-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.history-header .eyebrow { align-self: auto; }
+
+.clear-btn {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-500);
+    background: #fff;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.clear-btn:hover:not(:disabled) {
+    border-color: var(--gray-300);
+    color: var(--gray-600);
+}
+
+.clear-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.history-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 28px;
+    align-items: center;
+}
+
+.history-empty {
+    font-size: 13px;
+    color: var(--gray-400);
+}
+
+.history-chip {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-600);
+    background: #fff;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 4px 10px;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.history-chip.latest {
+    background: var(--blue-light);
+    color: var(--blue-dark);
+    border-color: var(--blue-border);
+}
+
+body.purple-mode .history-chip.latest {
+    background: var(--purple-light);
+    color: var(--purple-dark);
+    border-color: var(--purple-border);
+}
+
+.footer-tag {
+    font-size: 11px;
+    color: var(--gray-400);
+    margin-top: 6px;
+}
+</style>
+</head>
+<body>
+<div class="column">
+    <div class="eyebrow">Random Number Generator</div>
+
+    <div class="hero placeholder" id="hero">???</div>
+
+    <div class="status-msg" id="status">Set a range and hit Generate.</div>
+
+    <div class="range-row">
+        <div class="field">
+            <label for="min">Min</label>
+            <input type="number" id="min" value="1" inputmode="numeric">
+        </div>
+        <div class="field">
+            <label for="max">Max</label>
+            <input type="number" id="max" value="100" inputmode="numeric">
+        </div>
+    </div>
+
+    <div class="toggle-row">
+        <div class="toggle" id="dupToggle" role="switch" aria-checked="false" tabindex="0" aria-labelledby="dupLabel">
+            <div class="thumb"></div>
+        </div>
+        <span class="toggle-label" id="dupLabel">No duplicates</span>
+    </div>
+
+    <button class="generate-btn" id="generateBtn">Generate</button>
+
+    <div class="history-panel">
+        <div class="history-header">
+            <div class="eyebrow">Recent</div>
+            <button class="clear-btn" id="clearBtn" disabled>Clear</button>
+        </div>
+        <div class="history-list" id="historyList">
+            <span class="history-empty">No numbers yet.</span>
+        </div>
+    </div>
+
+</div>
+
+<script>
+(function () {
+    const hero = document.getElementById('hero');
+    const status = document.getElementById('status');
+    const minInput = document.getElementById('min');
+    const maxInput = document.getElementById('max');
+    const dupToggle = document.getElementById('dupToggle');
+    const dupLabel = document.getElementById('dupLabel');
+    const generateBtn = document.getElementById('generateBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const historyList = document.getElementById('historyList');
+
+    const HISTORY_MAX = 10;
+    let history = [];
+    let usedSet = new Set();
+    let rolling = false;
+
+    const noDup = () => dupToggle.classList.contains('on');
+
+    function parseRange() {
+        const min = parseInt(minInput.value, 10);
+        const max = parseInt(maxInput.value, 10);
+        return { min, max };
+    }
+
+    function validate() {
+        const { min, max } = parseRange();
+        if (Number.isNaN(min) || Number.isNaN(max)) {
+            return { ok: false, msg: 'Enter both min and max.' };
+        }
+        if (min > max) {
+            return { ok: false, msg: 'Min must be less than or equal to max.' };
+        }
+        return { ok: true, min, max };
+    }
+
+    function applyHeroMode() {
+        hero.classList.remove('mode-purple', 'mode-orange', 'mode-red');
+        document.body.classList.toggle('purple-mode', noDup());
+
+        if (!noDup()) return;
+
+        const v = validate();
+        if (!v.ok) return;
+
+        const poolSize = v.max - v.min + 1;
+        const remaining = poolSize - countUsedInRange(v.min, v.max);
+
+        if (remaining <= 0) hero.classList.add('mode-red');
+        else if (remaining <= Math.max(1, Math.floor(poolSize * 0.1))) hero.classList.add('mode-orange');
+        else hero.classList.add('mode-purple');
+    }
+
+    function countUsedInRange(min, max) {
+        let n = 0;
+        for (const v of usedSet) if (v >= min && v <= max) n++;
+        return n;
+    }
+
+    function setStatus(msg, level) {
+        status.textContent = msg || '';
+        status.classList.remove('warning', 'error');
+        if (level === 'warning') status.classList.add('warning');
+        if (level === 'error') status.classList.add('error');
+    }
+
+    function refreshStatus() {
+        const v = validate();
+        if (!v.ok) { setStatus(v.msg, 'error'); return; }
+
+        if (!noDup()) {
+            setStatus(history.length === 0 ? 'Set a range and hit Generate.' : '');
+            return;
+        }
+
+        const poolSize = v.max - v.min + 1;
+        const remaining = poolSize - countUsedInRange(v.min, v.max);
+        if (remaining <= 0) {
+            setStatus('All numbers used — clear history to reset.', 'error');
+        } else if (remaining <= Math.max(1, Math.floor(poolSize * 0.1))) {
+            setStatus(`${remaining} unique value${remaining === 1 ? '' : 's'} left.`, 'warning');
+        } else {
+            setStatus(`${remaining} unique value${remaining === 1 ? '' : 's'} available.`);
+        }
+    }
+
+    function renderHistory() {
+        if (history.length === 0) {
+            historyList.innerHTML = '<span class="history-empty">No numbers yet.</span>';
+            clearBtn.disabled = true;
+            return;
+        }
+        clearBtn.disabled = false;
+        historyList.innerHTML = '';
+        history.forEach((n, i) => {
+            const chip = document.createElement('span');
+            chip.className = 'history-chip' + (i === 0 ? ' latest' : '');
+            chip.textContent = n;
+            historyList.appendChild(chip);
+        });
+    }
+
+    function pickRandom(min, max) {
+        if (!noDup()) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        const pool = [];
+        for (let i = min; i <= max; i++) if (!usedSet.has(i)) pool.push(i);
+        if (pool.length === 0) return null;
+        return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function runRollAnimation(min, max, finalValue, callback) {
+        rolling = true;
+        generateBtn.disabled = true;
+        hero.classList.remove('placeholder');
+        const duration = 450;
+        const intervalMs = 50;
+        const start = Date.now();
+        const tick = () => {
+            const elapsed = Date.now() - start;
+            if (elapsed >= duration) {
+                hero.textContent = finalValue;
+                rolling = false;
+                generateBtn.disabled = false;
+                callback();
+                return;
+            }
+            const teaser = Math.floor(Math.random() * (max - min + 1)) + min;
+            hero.textContent = teaser;
+            setTimeout(tick, intervalMs);
+        };
+        tick();
+    }
+
+    function generate() {
+        if (rolling) return;
+        const v = validate();
+        if (!v.ok) { setStatus(v.msg, 'error'); return; }
+
+        const result = pickRandom(v.min, v.max);
+        if (result === null) {
+            setStatus('All numbers used — clear history to reset.', 'error');
+            hero.classList.remove('placeholder');
+            hero.classList.remove('mode-purple', 'mode-orange');
+            hero.classList.add('mode-red');
+            return;
+        }
+
+        runRollAnimation(v.min, v.max, result, () => {
+            if (noDup()) usedSet.add(result);
+            history.unshift(result);
+            if (history.length > HISTORY_MAX) history.pop();
+            renderHistory();
+            applyHeroMode();
+            refreshStatus();
+        });
+    }
+
+    function clearHistory() {
+        history = [];
+        usedSet.clear();
+        renderHistory();
+        hero.textContent = '???';
+        hero.classList.add('placeholder');
+        applyHeroMode();
+        refreshStatus();
+    }
+
+    function toggleDup() {
+        dupToggle.classList.toggle('on');
+        const on = noDup();
+        dupToggle.setAttribute('aria-checked', String(on));
+        if (on) {
+            usedSet = new Set(history);
+        } else {
+            usedSet.clear();
+        }
+        applyHeroMode();
+        refreshStatus();
+    }
+
+    generateBtn.addEventListener('click', generate);
+    clearBtn.addEventListener('click', clearHistory);
+    dupToggle.addEventListener('click', toggleDup);
+    dupLabel.addEventListener('click', toggleDup);
+    dupToggle.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggleDup(); }
+    });
+    minInput.addEventListener('input', () => { applyHeroMode(); refreshStatus(); });
+    maxInput.addEventListener('input', () => { applyHeroMode(); refreshStatus(); });
+    document.addEventListener('keydown', (e) => {
+        const tag = document.activeElement && document.activeElement.tagName;
+        if (e.key === 'Enter' && tag !== 'BUTTON') generate();
+    });
+
+    renderHistory();
+    applyHeroMode();
+    refreshStatus();
+})();
+</script>
+</body>
+</html>

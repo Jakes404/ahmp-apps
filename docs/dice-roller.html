@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dice Roller</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* brand */
+      --blue: #155A9E;
+      --blue-dark: #0e4278;
+      --blue-light: #e8f0f9;
+      --blue-border: #7aadd4;
+      --purple: #F067AF;
+      --purple-dark: #d44d96;
+      --purple-light: #fef0f7;
+      --purple-border: #f7aed8;
+
+      /* status */
+      --green: #22c55e;
+      --red: #ef4444;
+
+      /* neutrals */
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+
+      /* fonts */
+      --font-display: 'Nunito', system-ui, sans-serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: white; }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--gray-900);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 16px 48px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+    }
+
+    /* Title row with fullscreen toggle */
+    .title-row {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .title {
+      font-size: clamp(13px, 2.5vw, 18px);
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+    }
+
+    .icon-btn {
+      position: absolute;
+      right: 0;
+      width: 36px;
+      height: 36px;
+      background: transparent;
+      border: 2px solid var(--gray-200);
+      border-radius: 8px;
+      color: var(--gray-500);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s, color 0.15s;
+      padding: 0;
+    }
+    .icon-btn:hover { border-color: var(--gray-300); color: var(--gray-800); }
+    .icon-btn:focus-visible { outline: none; border-color: var(--blue); }
+
+    /* Hero */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      margin: 10px 0 4px;
+      user-select: none;
+      width: 100%;
+    }
+
+    .dice-field {
+      width: 100%;
+      min-height: clamp(180px, 38vw, 240px);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      cursor: pointer;
+    }
+
+    .dice-field[data-count="1"] { --die-size: clamp(180px, 38vw, 240px); }
+    .dice-field[data-count="2"] { --die-size: clamp(125px, 26vw, 165px); gap: 22px; }
+    .dice-field[data-count="3"] { --die-size: clamp(98px, 21vw, 135px); gap: 16px; }
+    .dice-field[data-count="4"] { --die-size: clamp(78px, 17vw, 115px); gap: 14px; }
+
+    .die-stage {
+      width: var(--die-size);
+      height: var(--die-size);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .die-spin {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform-origin: center center;
+    }
+
+    .die-spin.is-rolling-1 { animation: roll1 0.9s cubic-bezier(0.22, 0.61, 0.36, 1); }
+    .die-spin.is-rolling-2 { animation: roll2 0.9s cubic-bezier(0.22, 0.61, 0.36, 1); }
+    .die-spin.is-rolling-3 { animation: roll3 0.9s cubic-bezier(0.22, 0.61, 0.36, 1); }
+
+    @keyframes roll1 {
+      0%   { transform: rotate(0deg)    scale(1)    translateY(0); }
+      20%  { transform: rotate(180deg)  scale(1.06) translateY(-10px); }
+      45%  { transform: rotate(540deg)  scale(0.94) translateY(6px); }
+      70%  { transform: rotate(820deg)  scale(1.04) translateY(-4px); }
+      90%  { transform: rotate(1040deg) scale(0.98) translateY(2px); }
+      100% { transform: rotate(1080deg) scale(1)    translateY(0); }
+    }
+    @keyframes roll2 {
+      0%   { transform: rotate(0deg)   scale(1)    translateY(0); }
+      25%  { transform: rotate(220deg) scale(1.08) translateY(-12px); }
+      55%  { transform: rotate(500deg) scale(0.93) translateY(4px); }
+      80%  { transform: rotate(680deg) scale(1.03) translateY(-3px); }
+      100% { transform: rotate(720deg) scale(1)    translateY(0); }
+    }
+    @keyframes roll3 {
+      0%   { transform: rotate(0deg)    scale(1)    translateY(0); }
+      30%  { transform: rotate(640deg)  scale(1.07) translateY(-14px); }
+      60%  { transform: rotate(1100deg) scale(0.94) translateY(7px); }
+      85%  { transform: rotate(1380deg) scale(1.02) translateY(-3px); }
+      100% { transform: rotate(1440deg) scale(1)    translateY(0); }
+    }
+
+    .die-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow: visible;
+    }
+
+    .die-shape {
+      fill: white;
+      stroke: var(--gray-300);
+      stroke-width: 2.5;
+      stroke-linejoin: round;
+      transition: stroke 0.4s ease, fill 0.4s ease;
+      filter: drop-shadow(0 3px 8px rgba(17, 24, 39, 0.08));
+    }
+
+    .die-text {
+      font-family: var(--font-display);
+      font-weight: 900;
+      fill: var(--blue);
+      letter-spacing: -1px;
+      font-variant-numeric: tabular-nums;
+      transition: fill 0.4s ease;
+      pointer-events: none;
+    }
+
+    .die-stage.is-empty   .die-text  { fill: var(--gray-300); }
+    .die-stage.is-empty   .die-shape { stroke: var(--gray-200); }
+    .die-stage.is-rolling .die-shape { stroke: var(--blue); }
+
+    .hero-breakdown {
+      font-size: clamp(13px, 2vw, 15px);
+      color: var(--gray-500);
+      font-weight: 600;
+      min-height: 1.2em;
+      text-align: center;
+      padding: 0 12px;
+      word-break: break-word;
+    }
+
+    /* Sections */
+    .section {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-400);
+    }
+
+    /* Chips */
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      background: white;
+      border: 2px solid var(--gray-200);
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 10px 8px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-width: 84px;
+      flex: 1 0 84px;
+      max-width: 110px;
+      transition: border-color 0.15s, background 0.15s;
+      font-family: var(--font-body);
+    }
+    .chip:hover { border-color: var(--blue-border); }
+    .chip:focus-visible { outline: none; border-color: var(--blue); }
+    .chip.is-active { background: var(--blue-light); border-color: var(--blue-border); }
+
+    .chip-icon { width: 32px; height: 32px; display: block; }
+    .chip-shape {
+      fill: white;
+      stroke: var(--gray-400);
+      stroke-width: 5;
+      stroke-linejoin: round;
+      transition: stroke 0.15s, fill 0.15s;
+    }
+    .chip:hover .chip-shape { stroke: var(--blue-border); }
+    .chip.is-active .chip-shape { fill: white; stroke: var(--blue); }
+
+    .chip-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gray-600);
+      transition: color 0.15s;
+      line-height: 1;
+    }
+    .chip.is-active .chip-label { color: var(--blue-dark); }
+
+    .chip-sublabel {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      line-height: 1;
+    }
+    .chip.is-active .chip-sublabel { color: var(--blue); }
+
+    .qty-chip { padding: 10px 8px; gap: 4px; }
+    .qty-num {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 26px;
+      color: var(--gray-600);
+      line-height: 1;
+      transition: color 0.15s;
+      height: 32px;
+      display: flex;
+      align-items: center;
+    }
+    .qty-chip.is-active .qty-num { color: var(--blue-dark); }
+    .qty-word {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+    .qty-chip.is-active .qty-word { color: var(--blue); }
+
+    /* Roll button */
+    .roll-btn {
+      background: var(--green);
+      color: white;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 19px;
+      padding: 13px 38px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s, filter 0.2s;
+      margin-top: 6px;
+    }
+    .roll-btn:hover:not(:disabled) { filter: brightness(0.94); }
+    .roll-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.35); }
+    .roll-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Divider */
+    .divider { width: 100%; height: 1px; background: var(--gray-100); }
+
+    /* History */
+    .history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .clear-btn {
+      background: transparent;
+      border: 2px solid var(--gray-200);
+      color: var(--gray-500);
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .clear-btn:hover { border-color: var(--gray-300); color: var(--gray-800); }
+
+    .history-list { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+
+    .history-item {
+      background: var(--gray-50);
+      border: 2px solid var(--gray-200);
+      border-radius: 14px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: background 0.25s, border-color 0.25s;
+    }
+    .history-item:hover { border-color: var(--blue-border); }
+
+    .history-text { min-width: 0; }
+    .history-formula { font-weight: 700; color: var(--gray-900); font-size: 15px; }
+    .history-detail { color: var(--gray-500); font-size: 13px; font-weight: 400; margin-top: 2px; word-break: break-word; }
+
+    .history-total {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 30px;
+      color: var(--blue);
+      letter-spacing: -1px;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+    }
+
+    .history-empty { color: var(--gray-400); font-size: 13px; text-align: center; padding: 18px 0; }
+
+    /* ── Fullscreen overlay ─────────────────────────────────────── */
+
+    .fs-overlay {
+      position: fixed;
+      inset: 0;
+      background: white;
+      z-index: 9999;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      /* padding reserves space so dice don't sit behind the floating buttons */
+      padding: 72px 24px 160px;
+    }
+    .fs-overlay.is-active { display: flex; }
+
+    /* Larger dice when inside the overlay */
+    #fsOverlay .dice-field[data-count="1"] { --die-size: clamp(240px, 46vh, 380px); }
+    #fsOverlay .dice-field[data-count="2"] { --die-size: clamp(170px, 34vh, 260px); gap: 28px; }
+    #fsOverlay .dice-field[data-count="3"] { --die-size: clamp(130px, 26vh, 200px); gap: 20px; }
+    #fsOverlay .dice-field[data-count="4"] { --die-size: clamp(105px, 21vh, 160px); gap: 16px; }
+    #fsOverlay .dice-field { min-height: unset; width: 100%; max-width: 700px; }
+
+    /* Breakdown text is larger and more prominent in fullscreen */
+    #fsOverlay .hero-breakdown {
+      font-size: clamp(18px, 3.5vw, 28px);
+      font-weight: 700;
+      color: var(--gray-800);
+      letter-spacing: -0.5px;
+    }
+
+    .fs-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+      width: 100%;
+    }
+
+    .fs-controls {
+      position: fixed;
+      bottom: 44px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Circular floating roll button — 80×80px per design system */
+    .fs-roll-btn {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--green);
+      border: none;
+      color: white;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(34, 197, 94, 0.35);
+      transition: filter 0.15s, opacity 0.2s;
+    }
+    .fs-roll-btn:hover:not(:disabled) { filter: brightness(0.94); }
+    .fs-roll-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Close button — top-right, fades with controls */
+    .fs-close-btn {
+      position: fixed;
+      top: 22px;
+      right: 22px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--gray-800);
+      border: none;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(17, 24, 39, 0.28);
+      transition: filter 0.15s;
+    }
+    .fs-close-btn:hover { filter: brightness(1.25); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .die-spin.is-rolling-1,
+      .die-spin.is-rolling-2,
+      .die-spin.is-rolling-3 { animation-duration: 0.001s; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="title-row">
+      <div class="title">Dice Roller</div>
+      <button class="icon-btn" id="fullscreenBtn" aria-label="Enter fullscreen">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="4,2 2,2 2,4"></polyline>
+          <polyline points="12,2 14,2 14,4"></polyline>
+          <polyline points="4,14 2,14 2,12"></polyline>
+          <polyline points="12,14 14,14 14,12"></polyline>
+        </svg>
+      </button>
+    </div>
+
+    <div class="hero" id="heroSection">
+      <div class="dice-field" id="diceField" data-count="1"></div>
+      <div class="hero-breakdown" id="heroBreakdown">Pick a die, choose how many, then roll</div>
+    </div>
+
+    <button class="roll-btn" type="button" id="rollBtn">Roll</button>
+
+    <div class="section">
+      <div class="eyebrow">How many</div>
+      <div class="chip-row" id="qtyRow"></div>
+    </div>
+
+    <div class="section">
+      <div class="eyebrow">Choose a die</div>
+      <div class="chip-row" id="dieTypeRow"></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <div class="history-header">
+        <div class="eyebrow">History</div>
+        <button class="clear-btn" type="button" id="clearBtn" style="display:none">Clear</button>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="history-empty">No rolls yet</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Fullscreen overlay — dice and breakdown are moved here at runtime -->
+  <div class="fs-overlay" id="fsOverlay">
+    <div class="fs-inner" id="fsInner">
+      <!-- diceField and heroBreakdown are moved in here when fullscreen opens -->
+    </div>
+    <div class="fs-controls" id="fsControls">
+      <button class="fs-roll-btn" id="fsRollBtn" aria-label="Roll">Roll</button>
+    </div>
+    <button class="fs-close-btn" id="fsCloseBtn" aria-label="Close fullscreen">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
+           stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="2" y1="2" x2="12" y2="12"></line>
+        <line x1="12" y1="2" x2="2" y2="12"></line>
+      </svg>
+    </button>
+  </div>
+
+  <script>
+    (function () {
+      const TUMBLE_MS = 900;
+      const MAX_HISTORY = 20;
+      const ROLL_VARIANTS = ['is-rolling-1', 'is-rolling-2', 'is-rolling-3'];
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* Each shape is translated so its vertex centroid is at (50,50) —
+         the rotation origin of .die-spin — so every die spins cleanly in place. */
+      const DIE_DEFS = {
+        4:   { points: '50,1 92,75 8,75',                              textY: 50 },
+        6:   { points: '12,12 88,12 88,88 12,88',                      textY: 50 },
+        8:   { points: '50,8 92,50 50,92 8,50',                        textY: 50 },
+        10:  { points: '50,9 86,45 50,101 14,45',                      textY: 50 },
+        12:  { points: '50,3 95,35 78,89 22,89 5,35',                  textY: 50 },
+        20:  { points: '28,8 72,8 95,50 72,92 28,92 5,50',             textY: 50 },
+        100: { points: '32,6 68,6 94,32 94,68 68,94 32,94 6,68 6,32',  textY: 50 }
+      };
+      const DIE_ORDER = [4, 6, 8, 10, 12, 20, 100];
+      const QTY_OPTIONS = [1, 2, 3, 4];
+
+      // State
+      let selectedSides = 20;
+      let quantity = 1;
+      let dieStages = [];
+      const history = [];
+      let isRolling = false;
+
+      // DOM refs — main page
+      const heroSection   = document.getElementById('heroSection');
+      const diceField     = document.getElementById('diceField');
+      const heroBreakdown = document.getElementById('heroBreakdown');
+      const dieTypeRow    = document.getElementById('dieTypeRow');
+      const qtyRow        = document.getElementById('qtyRow');
+      const rollBtn       = document.getElementById('rollBtn');
+      const historyList   = document.getElementById('historyList');
+      const clearBtn      = document.getElementById('clearBtn');
+
+      // DOM refs — fullscreen
+      const fsOverlay     = document.getElementById('fsOverlay');
+      const fsInner       = document.getElementById('fsInner');
+      const fsControls    = document.getElementById('fsControls');
+      const fsRollBtn     = document.getElementById('fsRollBtn');
+      const fsCloseBtn    = document.getElementById('fsCloseBtn');
+      const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+      // Placeholder elements hold the dice/breakdown position while they're
+      // moved into the fullscreen overlay, so we know where to put them back.
+      const diceAnchor     = document.createElement('div');
+      const breakdownAnchor = document.createElement('div');
+
+      let inFullscreen = false;
+
+      // ── Fullscreen ─────────────────────────────────────────────
+
+      function enterFullscreen() {
+        inFullscreen = true;
+        diceField.replaceWith(diceAnchor);
+        heroBreakdown.replaceWith(breakdownAnchor);
+        fsInner.prepend(heroBreakdown);
+        fsInner.prepend(diceField);
+        fsOverlay.classList.add('is-active');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function exitFullscreen() {
+        inFullscreen = false;
+        diceAnchor.replaceWith(diceField);
+        breakdownAnchor.replaceWith(heroBreakdown);
+        fsOverlay.classList.remove('is-active');
+        document.body.style.overflow = '';
+      }
+
+      fullscreenBtn.addEventListener('click', enterFullscreen);
+      fsCloseBtn.addEventListener('click', (e) => { e.stopPropagation(); exitFullscreen(); });
+      fsRollBtn.addEventListener('click', (e) => { e.stopPropagation(); doRoll(); });
+
+      // ── Build die-type chips ───────────────────────────────────
+
+      DIE_ORDER.forEach(sides => {
+        const def = DIE_DEFS[sides];
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'chip' + (sides === selectedSides ? ' is-active' : '');
+        chip.dataset.sides = sides;
+        chip.innerHTML = `
+          <svg class="chip-icon" viewBox="-3 -3 106 106" aria-hidden="true">
+            <polygon class="chip-shape" points="${def.points}" />
+          </svg>
+          <div class="chip-label">${sides} sides</div>
+          <div class="chip-sublabel">d${sides}</div>
+        `;
+        dieTypeRow.appendChild(chip);
+      });
+
+      // ── Build quantity chips ───────────────────────────────────
+
+      QTY_OPTIONS.forEach(n => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'chip qty-chip' + (n === quantity ? ' is-active' : '');
+        chip.dataset.qty = n;
+        chip.innerHTML = `
+          <div class="qty-num">${n}</div>
+          <div class="qty-word">${n === 1 ? 'die' : 'dice'}</div>
+        `;
+        qtyRow.appendChild(chip);
+      });
+
+      // ── Die helpers ────────────────────────────────────────────
+
+      function applyShape(refs, sides) {
+        const def = DIE_DEFS[sides];
+        refs.shape.setAttribute('points', def.points);
+        refs.text.setAttribute('y', def.textY);
+      }
+
+      function setDieText(refs, text) {
+        const s = String(text);
+        refs.text.textContent = s;
+        refs.text.setAttribute('font-size', s.length >= 3 ? 30 : 42);
+      }
+
+      function setStageClass(stage, cls) {
+        stage.classList.remove('is-empty', 'is-rolling');
+        if (cls) stage.classList.add(cls);
+      }
+
+      function rebuildDice() {
+        diceField.innerHTML = '';
+        diceField.dataset.count = quantity;
+        dieStages = [];
+        for (let i = 0; i < quantity; i++) {
+          const stage = document.createElement('div');
+          stage.className = 'die-stage is-empty';
+          stage.innerHTML = `
+            <div class="die-spin">
+              <svg class="die-svg" viewBox="-3 -3 106 106">
+                <polygon class="die-shape" />
+                <text class="die-text" x="50" y="50"
+                      text-anchor="middle" dominant-baseline="central"
+                      font-size="42">—</text>
+              </svg>
+            </div>
+          `;
+          diceField.appendChild(stage);
+          const refs = {
+            stage,
+            spin:  stage.querySelector('.die-spin'),
+            shape: stage.querySelector('.die-shape'),
+            text:  stage.querySelector('.die-text')
+          };
+          applyShape(refs, selectedSides);
+          dieStages.push(refs);
+        }
+        updateBreakdown();
+      }
+
+      function updateBreakdown(rolls, total) {
+        const base = `${quantity} × ${selectedSides} sides`;
+        if (rolls == null || quantity === 1) {
+          heroBreakdown.textContent = base;
+        } else {
+          heroBreakdown.textContent = `${base} · ${rolls.join(' + ')} = ${total}`;
+        }
+      }
+
+      // ── Chip click handlers ────────────────────────────────────
+
+      dieTypeRow.addEventListener('click', (e) => {
+        if (isRolling) return;
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+        dieTypeRow.querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
+        chip.classList.add('is-active');
+        selectedSides = parseInt(chip.dataset.sides, 10);
+        dieStages.forEach(refs => {
+          applyShape(refs, selectedSides);
+          setDieText(refs, '—');
+          setStageClass(refs.stage, 'is-empty');
+        });
+        updateBreakdown();
+      });
+
+      qtyRow.addEventListener('click', (e) => {
+        if (isRolling) return;
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+        qtyRow.querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
+        chip.classList.add('is-active');
+        quantity = parseInt(chip.dataset.qty, 10);
+        rebuildDice();
+      });
+
+      // ── Roll ───────────────────────────────────────────────────
+
+      function rollOnce(sides) {
+        return Math.floor(Math.random() * sides) + 1;
+      }
+
+      function setAllBtnsDisabled(disabled) {
+        rollBtn.disabled   = disabled;
+        fsRollBtn.disabled = disabled;
+      }
+
+      function settleAll(rolls, sides, count) {
+        let total = 0;
+        for (let i = 0; i < count; i++) {
+          const r = rolls[i];
+          total += r;
+          setDieText(dieStages[i], r);
+          setStageClass(dieStages[i].stage, '');
+        }
+        return total;
+      }
+
+      function doRoll() {
+        if (isRolling) return;
+        isRolling = true;
+        setAllBtnsDisabled(true);
+
+        const sides = selectedSides;
+        const count = quantity;
+
+        const rolls = [];
+        for (let i = 0; i < count; i++) rolls.push(rollOnce(sides));
+
+        if (reduceMotion) {
+          const total = settleAll(rolls, sides, count);
+          updateBreakdown(rolls, total);
+          addToHistory({ sides, count, rolls, total, time: new Date() });
+          isRolling = false;
+          setAllBtnsDisabled(false);
+          return;
+        }
+
+        dieStages.forEach(s => setStageClass(s.stage, 'is-rolling'));
+        heroBreakdown.textContent = count === 1
+          ? `1 × ${sides} sides · rolling…`
+          : `${count} × ${sides} sides · rolling…`;
+
+        // One variant shared by all dice so they spin identically
+        const variant = ROLL_VARIANTS[Math.floor(Math.random() * ROLL_VARIANTS.length)];
+        dieStages.forEach(s => s.spin.classList.remove(...ROLL_VARIANTS));
+        void diceField.offsetWidth;
+        dieStages.forEach(s => s.spin.classList.add(variant));
+
+        const cycle = setInterval(() => {
+          dieStages.forEach(s => setDieText(s, rollOnce(sides)));
+        }, 90);
+
+        setTimeout(() => {
+          clearInterval(cycle);
+          dieStages.forEach(s => s.spin.classList.remove(...ROLL_VARIANTS));
+          const total = settleAll(rolls, sides, count);
+          updateBreakdown(rolls, total);
+          addToHistory({ sides, count, rolls, total, time: new Date() });
+          isRolling = false;
+          setAllBtnsDisabled(false);
+        }, TUMBLE_MS + 20);
+      }
+
+      // ── History ────────────────────────────────────────────────
+
+      function formatTime(d) {
+        const h = d.getHours().toString().padStart(2, '0');
+        const m = d.getMinutes().toString().padStart(2, '0');
+        return `${h}:${m}`;
+      }
+
+      function addToHistory(entry) {
+        history.unshift(entry);
+        if (history.length > MAX_HISTORY) history.pop();
+        renderHistory();
+      }
+
+      function renderHistory() {
+        if (history.length === 0) {
+          historyList.innerHTML = '<div class="history-empty">No rolls yet</div>';
+          clearBtn.style.display = 'none';
+          return;
+        }
+        clearBtn.style.display = '';
+        const frag = document.createDocumentFragment();
+        history.forEach(h => {
+          const item = document.createElement('div');
+          item.className = 'history-item';
+
+          const text = document.createElement('div');
+          text.className = 'history-text';
+          const formula = document.createElement('div');
+          formula.className = 'history-formula';
+          formula.textContent = `${h.count} × ${h.sides} sides`;
+          const detail = document.createElement('div');
+          detail.className = 'history-detail';
+          detail.textContent = h.count === 1
+            ? formatTime(h.time)
+            : `${h.rolls.join(', ')} · ${formatTime(h.time)}`;
+          text.appendChild(formula);
+          text.appendChild(detail);
+
+          const total = document.createElement('div');
+          total.className = 'history-total';
+          total.textContent = h.total;
+
+          item.appendChild(text);
+          item.appendChild(total);
+          frag.appendChild(item);
+        });
+        historyList.innerHTML = '';
+        historyList.appendChild(frag);
+      }
+
+      // ── Event wiring ───────────────────────────────────────────
+
+      rollBtn.addEventListener('click', doRoll);
+      diceField.addEventListener('click', () => { if (!isRolling) doRoll(); });
+      clearBtn.addEventListener('click', () => { history.length = 0; renderHistory(); });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && inFullscreen) { exitFullscreen(); return; }
+        const tag = (e.target.tagName || '').toLowerCase();
+        if (tag === 'input' || tag === 'button' || tag === 'textarea') return;
+        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); doRoll(); }
+      });
+
+      // ── Init ───────────────────────────────────────────────────
+      rebuildDice();
+    })();
+  </script>
+</body>
+</html>

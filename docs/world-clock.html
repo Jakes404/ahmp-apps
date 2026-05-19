@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Clock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue: #155A9E;
+  --blue-dark: #0e4278;
+  --blue-light: #e8f0f9;
+  --blue-border: #7aadd4;
+  --purple: #F067AF;
+  --purple-dark: #d44d96;
+  --purple-light: #fef0f7;
+  --purple-border: #f7aed8;
+  --purple-soft: #fde3f1;
+  --purple-btn: #f49ccc;
+
+  --green: #22c55e;
+  --orange: #f97316;
+  --red: #ef4444;
+
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+
+  --font-display: 'Nunito', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+
+  --accent: var(--blue);
+  --accent-dark: var(--blue-dark);
+  --accent-light: var(--blue-light);
+  --accent-border: var(--blue-border);
+}
+
+body[data-mode="convert"] {
+  --accent: var(--purple);
+  --accent-dark: var(--purple-dark);
+  --accent-light: var(--purple-light);
+  --accent-border: var(--purple-border);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: #fff;
+  color: var(--gray-900);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 16px 48px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.container { width: 100%; max-width: 640px; }
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--gray-400);
+  margin-bottom: 10px;
+}
+
+.date-string {
+  font-size: clamp(13px, 2.5vw, 18px);
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.hero { text-align: center; margin-bottom: 6px; }
+
+.hero-time {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(80px, 22vw, 190px);
+  line-height: 1;
+  letter-spacing: -3px;
+  color: var(--accent);
+  transition: color 0.4s;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-zone {
+  font-size: clamp(13px, 2vw, 15px);
+  font-weight: 600;
+  color: var(--gray-500);
+  margin-top: 10px;
+}
+
+.mode-toggle {
+  display: flex;
+  background: var(--gray-50);
+  border: 2px solid var(--gray-200);
+  border-radius: 99px;
+  padding: 4px;
+  margin: 22px auto 0;
+  width: fit-content;
+}
+
+.mode-btn {
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-500);
+  padding: 8px 22px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s;
+}
+
+.mode-btn:hover { color: var(--gray-800); }
+
+.mode-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.mode-btn.active:hover { color: #fff; }
+
+.section { margin-top: 28px; }
+
+.source-panel {
+  background: var(--accent-light);
+  border: 2px solid var(--accent-border);
+  border-radius: 14px;
+  padding: 18px 18px 14px;
+  transition: background 0.25s, border-color 0.25s;
+}
+
+.source-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.source-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.source-field--wide {
+  grid-column: 1 / -1;
+}
+
+.source-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent-dark);
+}
+
+.source-panel input {
+  border-color: var(--accent-border);
+}
+
+.source-panel input:hover {
+  border-color: var(--accent);
+}
+
+#srcDate,
+#srcTime {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.5px;
+  text-align: center;
+  padding: 12px 10px;
+  cursor: pointer;
+}
+
+.tz-combobox {
+  position: relative;
+  width: 100%;
+}
+
+.tz-combobox-input {
+  border-color: var(--accent-border) !important;
+  cursor: text;
+}
+
+.tz-combobox-input:hover {
+  border-color: var(--accent) !important;
+}
+
+.tz-combobox-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 2px solid var(--gray-200);
+  border-radius: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 20;
+  display: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.tz-combobox-dropdown.open { display: block; }
+
+.tz-combobox-item {
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-900);
+  cursor: pointer;
+  border-bottom: 1px solid var(--gray-100);
+  transition: background 0.15s, color 0.15s;
+}
+
+.tz-combobox-item:last-child { border-bottom: none; }
+
+.tz-combobox-item:hover,
+.tz-combobox-item.selected {
+  background: var(--accent-light);
+  color: var(--accent-dark);
+}
+
+.tz-combobox-item .tz-cb-sub {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--gray-400);
+  margin-top: 1px;
+}
+
+.source-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--accent-border);
+}
+
+.source-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.source-row + .source-row { margin-top: 10px; }
+
+input[type="text"],
+input[type="date"],
+input[type="time"],
+select {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-900);
+  background: #fff;
+  border: 2px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 9px 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+input:focus, select:focus { border-color: var(--accent); }
+
+.tz-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tz-card {
+  background: var(--gray-50);
+  border: 2px solid var(--gray-200);
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: background 0.25s, border-color 0.25s, opacity 0.2s;
+  cursor: grab;
+}
+
+.tz-card:hover { border-color: var(--gray-300); }
+.tz-card.dragging { opacity: 0.4; cursor: grabbing; }
+.tz-card.drag-over {
+  border-color: var(--accent-border);
+  background: var(--accent-light);
+}
+
+.tz-drag {
+  color: var(--gray-300);
+  font-size: 16px;
+  user-select: none;
+  letter-spacing: -2px;
+  cursor: grab;
+}
+
+.tz-info { flex: 1; min-width: 0; }
+
+.tz-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gray-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tz-meta {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 4px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.day-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 99px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.day-badge.next { background: var(--orange); color: #fff; }
+.day-badge.prev { background: var(--gray-500); color: #fff; }
+
+.tz-right { display: flex; align-items: center; gap: 12px; }
+
+.tz-time {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 26px;
+  color: var(--gray-900);
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.tz-remove {
+  background: transparent;
+  border: 2px solid var(--gray-200);
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--gray-500);
+  transition: border-color 0.15s, color 0.15s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.tz-remove:hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.tz-remove svg { width: 14px; height: 14px; }
+
+.empty-state {
+  text-align: center;
+  color: var(--gray-400);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 22px;
+  border: 2px dashed var(--gray-200);
+  border-radius: 14px;
+}
+
+.add-area { position: relative; }
+
+.search-wrap { position: relative; }
+
+.search-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 2px solid var(--gray-200);
+  border-radius: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 10;
+  display: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+
+.search-dropdown.open { display: block; }
+
+.search-item {
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-900);
+  cursor: pointer;
+  border-bottom: 1px solid var(--gray-100);
+  transition: background 0.15s, color 0.15s;
+}
+
+.search-item:last-child { border-bottom: none; }
+
+.search-item:hover {
+  background: var(--accent-light);
+  color: var(--accent-dark);
+}
+
+.search-item.added {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.search-empty {
+  padding: 18px;
+  font-size: 13px;
+  color: var(--gray-400);
+  text-align: center;
+  font-weight: 600;
+}
+
+.preset-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.chip {
+  background: #fff;
+  border: 2px solid var(--gray-200);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-600);
+  padding: 7px 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.chip:hover { border-color: var(--accent-border); }
+
+.chip.added {
+  background: var(--accent-light);
+  border-color: var(--accent-border);
+  color: var(--accent-dark);
+}
+
+.chip.added:hover {
+  background: #fff;
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.format-controls {
+  margin-top: 28px;
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 16px 20px;
+  background: var(--gray-50);
+  border: 2px solid var(--gray-200);
+  border-radius: 14px;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-500);
+  user-select: none;
+}
+
+.toggle input { display: none; }
+
+.toggle-track {
+  width: 44px;
+  height: 24px;
+  background: var(--gray-300);
+  border-radius: 99px;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: left 0.2s;
+}
+
+.toggle input:checked + .toggle-track { background: var(--accent); }
+.toggle input:checked + .toggle-track .toggle-thumb { left: 23px; }
+.toggle:has(input:checked) .toggle-label { color: var(--accent-dark); }
+
+.footer-tag {
+  font-size: 11px;
+  color: var(--gray-400);
+  text-align: center;
+  margin-top: 48px;
+}
+
+body[data-mode="clock"] .converter-only { display: none; }
+body[data-mode="convert"] .clock-only { display: none; }
+
+@media (max-width: 480px) {
+  .tz-card { padding: 12px 14px; gap: 10px; }
+  .tz-time { font-size: 22px; }
+  .tz-name { font-size: 14px; }
+  .source-row { flex-direction: column; align-items: stretch; }
+  .source-row > * { width: 100%; }
+}
+</style>
+</head>
+<body data-mode="clock">
+<div class="container">
+
+  <div class="date-string" id="dateString">&mdash;</div>
+
+  <div class="hero">
+    <div class="hero-time" id="heroTime">--:--:--</div>
+    <div class="hero-zone" id="heroZone">Local</div>
+  </div>
+
+  <div class="mode-toggle" role="tablist">
+    <button class="mode-btn active" data-mode-btn="clock" type="button">Clock</button>
+    <button class="mode-btn" data-mode-btn="convert" type="button">Convert</button>
+  </div>
+
+  <div class="section converter-only">
+    <div class="eyebrow">Source time</div>
+    <div class="source-panel">
+      <div class="source-fields">
+        <div class="source-field">
+          <label class="source-label" for="srcDate">Date</label>
+          <input type="date" id="srcDate">
+        </div>
+        <div class="source-field">
+          <label class="source-label" for="srcTime">Time</label>
+          <input type="time" id="srcTime" step="60">
+        </div>
+        <div class="source-field source-field--wide">
+          <label class="source-label">Timezone</label>
+          <div class="tz-combobox" id="srcZoneWrap">
+            <input type="text" id="srcZoneInput" class="tz-combobox-input" placeholder="Search timezone…" autocomplete="off" spellcheck="false">
+            <div class="tz-combobox-dropdown" id="srcZoneDropdown"></div>
+          </div>
+        </div>
+      </div>
+      <div class="source-actions">
+        <button class="chip" id="resetNow" type="button">Reset to now</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="eyebrow clock-only">Other zones</div>
+    <div class="eyebrow converter-only">Converted</div>
+    <div class="tz-list" id="tzList"></div>
+  </div>
+
+  <div class="section">
+    <div class="eyebrow">Add a zone</div>
+    <div class="add-area">
+      <div class="search-wrap">
+        <input type="text" id="search" placeholder="Search timezones (e.g. Tokyo, London, Pacific)" autocomplete="off">
+        <div class="search-dropdown" id="searchDropdown"></div>
+      </div>
+      <div class="preset-chips" id="presetChips"></div>
+    </div>
+  </div>
+
+  <div class="format-controls">
+    <label class="toggle">
+      <input type="checkbox" id="t24">
+      <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      <span class="toggle-label">24-hour</span>
+    </label>
+    <label class="toggle">
+      <input type="checkbox" id="tSec" checked>
+      <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      <span class="toggle-label">Seconds</span>
+    </label>
+    <label class="toggle">
+      <input type="checkbox" id="tDay" checked>
+      <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      <span class="toggle-label">Day offset</span>
+    </label>
+  </div>
+
+</div>
+
+<script>
+const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+const state = {
+  mode: 'clock',
+  zones: [
+    { id: 'preset-new-york', label: 'New York', zone: 'America/New_York' },
+    { id: 'preset-london', label: 'London', zone: 'Europe/London' },
+    { id: 'preset-tokyo', label: 'Tokyo', zone: 'Asia/Tokyo' }
+  ],
+  use24: false,
+  showSeconds: true,
+  showDayOffset: true,
+  srcZone: localZone,
+  srcDateTime: new Date()
+};
+
+const presets = [
+  { id: 'preset-new-york', label: 'New York', zone: 'America/New_York' },
+  { id: 'preset-los-angeles', label: 'Los Angeles', zone: 'America/Los_Angeles' },
+  { id: 'preset-london', label: 'London', zone: 'Europe/London' },
+  { id: 'preset-paris', label: 'Paris', zone: 'Europe/Paris' },
+  { id: 'preset-berlin', label: 'Berlin', zone: 'Europe/Berlin' },
+  { id: 'preset-dubai', label: 'Dubai', zone: 'Asia/Dubai' },
+  { id: 'preset-mumbai', label: 'Mumbai', zone: 'Asia/Kolkata' },
+  { id: 'preset-singapore', label: 'Singapore', zone: 'Asia/Singapore' },
+  { id: 'preset-shanghai', label: 'Shanghai', zone: 'Asia/Shanghai' },
+  { id: 'preset-hangzhou', label: 'Hangzhou', zone: 'Asia/Shanghai' },
+  { id: 'preset-hong-kong', label: 'Hong Kong', zone: 'Asia/Hong_Kong' },
+  { id: 'preset-tokyo', label: 'Tokyo', zone: 'Asia/Tokyo' },
+  { id: 'preset-sydney', label: 'Sydney', zone: 'Australia/Sydney' },
+  { id: 'preset-sao-paulo', label: 'São Paulo', zone: 'America/Sao_Paulo' },
+  { id: 'preset-utc', label: 'UTC', zone: 'UTC' }
+];
+
+let allZones = [];
+try {
+  allZones = Intl.supportedValuesOf('timeZone');
+} catch (e) {
+  allZones = Array.from(new Set([localZone, ...presets.map(p => p.zone)]));
+}
+
+function getZoneParts(date, zone) {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: zone,
+    hour12: false,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit'
+  }).formatToParts(date).reduce((acc, p) => {
+    if (p.type !== 'literal') acc[p.type] = p.value;
+    return acc;
+  }, {});
+}
+
+function formatTime(date, zone) {
+  const f = new Intl.DateTimeFormat('en-US', {
+    timeZone: zone,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: state.showSeconds ? '2-digit' : undefined,
+    hour12: !state.use24
+  });
+  return f.format(date);
+}
+
+function formatFullDate(date, zone) {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: zone,
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  }).format(date);
+}
+
+function zoneAbbrev(date, zone) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: zone, timeZoneName: 'short', hour: 'numeric'
+  }).formatToParts(date);
+  const t = parts.find(p => p.type === 'timeZoneName');
+  return t ? t.value : '';
+}
+
+function getZoneOffsetMinutes(date, zone) {
+  const p = getZoneParts(date, zone);
+  const hour = +p.hour === 24 ? 0 : +p.hour;
+  const asUTC = Date.UTC(+p.year, +p.month - 1, +p.day, hour, +p.minute, +p.second);
+  return Math.round((asUTC - date.getTime()) / 60000);
+}
+
+function dayDiff(date, zoneA, zoneB) {
+  const ymd = (z) => {
+    const p = getZoneParts(date, z);
+    return Date.UTC(+p.year, +p.month - 1, +p.day);
+  };
+  return Math.round((ymd(zoneA) - ymd(zoneB)) / 86400000);
+}
+
+function cityFromZone(zone) {
+  return zone.split('/').pop().replace(/_/g, ' ');
+}
+
+function regionFromZone(zone) {
+  const parts = zone.split('/');
+  if (parts.length < 2) return zone;
+  return parts.slice(0, -1).join(' / ');
+}
+
+const elDate = document.getElementById('dateString');
+const elHeroTime = document.getElementById('heroTime');
+const elHeroZone = document.getElementById('heroZone');
+const elTzList = document.getElementById('tzList');
+const elPresets = document.getElementById('presetChips');
+const elSrcDate = document.getElementById('srcDate');
+const elSrcTime = document.getElementById('srcTime');
+const elSrcZoneInput = document.getElementById('srcZoneInput');
+const elSrcZoneDropdown = document.getElementById('srcZoneDropdown');
+
+function renderDate() {
+  const ref = state.mode === 'clock' ? new Date() : state.srcDateTime;
+  const refZone = state.mode === 'clock' ? localZone : state.srcZone;
+  elDate.textContent = formatFullDate(ref, refZone);
+}
+
+function renderHero() {
+  const date = state.mode === 'clock' ? new Date() : state.srcDateTime;
+  const zone = state.mode === 'clock' ? localZone : state.srcZone;
+  elHeroTime.textContent = formatTime(date, zone);
+
+  const abbr = zoneAbbrev(date, zone);
+  const city = cityFromZone(zone);
+  const tag = state.mode === 'clock' ? 'your local time' : 'source time';
+  elHeroZone.textContent = `${city} · ${abbr} · ${tag}`;
+}
+
+let draggedIdx = null;
+
+function renderTzList() {
+  elTzList.innerHTML = '';
+  const refDate = state.mode === 'clock' ? new Date() : state.srcDateTime;
+  const refZone = state.mode === 'clock' ? localZone : state.srcZone;
+
+  if (state.zones.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.textContent = 'No zones added yet. Pick one below.';
+    elTzList.appendChild(empty);
+    return;
+  }
+
+  state.zones.forEach((entry, idx) => {
+    const { label, zone } = entry;
+    const card = document.createElement('div');
+    card.className = 'tz-card';
+    card.draggable = true;
+    card.dataset.index = idx;
+
+    const time = formatTime(refDate, zone);
+    const abbr = zoneAbbrev(refDate, zone);
+    const region = regionFromZone(zone);
+
+    let dayBadge = '';
+    if (state.showDayOffset) {
+      const diff = dayDiff(refDate, zone, refZone);
+      if (diff > 0) dayBadge = `<span class="day-badge next">+${diff}d</span>`;
+      else if (diff < 0) dayBadge = `<span class="day-badge prev">${diff}d</span>`;
+    }
+
+    const metaText = region && region !== zone ? `${region} · ${abbr}` : abbr;
+
+    card.innerHTML = `
+      <span class="tz-drag" aria-hidden="true">&#8942;&#8942;</span>
+      <div class="tz-info">
+        <div class="tz-name">${label}</div>
+        <div class="tz-meta">
+          <span>${metaText}</span>
+          ${dayBadge}
+        </div>
+      </div>
+      <div class="tz-right">
+        <div class="tz-time">${time}</div>
+        <button class="tz-remove" aria-label="Remove ${label}" data-remove="${idx}" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    `;
+
+    card.addEventListener('dragstart', (e) => {
+      draggedIdx = idx;
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(idx));
+    });
+    card.addEventListener('dragend', () => {
+      card.classList.remove('dragging');
+      elTzList.querySelectorAll('.tz-card').forEach(c => c.classList.remove('drag-over'));
+    });
+    card.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (draggedIdx !== idx) card.classList.add('drag-over');
+    });
+    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+    card.addEventListener('drop', (e) => {
+      e.preventDefault();
+      card.classList.remove('drag-over');
+      if (draggedIdx === null || draggedIdx === idx) return;
+      const [moved] = state.zones.splice(draggedIdx, 1);
+      state.zones.splice(idx, 0, moved);
+      draggedIdx = null;
+      renderAll();
+    });
+
+    elTzList.appendChild(card);
+  });
+
+  elTzList.querySelectorAll('[data-remove]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const i = +btn.dataset.remove;
+      state.zones.splice(i, 1);
+      renderAll();
+    });
+  });
+}
+
+function renderPresets() {
+  elPresets.innerHTML = '';
+  presets.forEach(p => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'chip';
+    chip.textContent = p.label;
+    if (state.zones.some(e => e.id === p.id)) chip.classList.add('added');
+    chip.addEventListener('click', () => {
+      const i = state.zones.findIndex(e => e.id === p.id);
+      if (i >= 0) state.zones.splice(i, 1);
+      else state.zones.push({ id: p.id, label: p.label, zone: p.zone });
+      renderAll();
+    });
+    elPresets.appendChild(chip);
+  });
+}
+
+let srcZoneDropdownOpen = false;
+
+function openSrcZoneDropdown(query = '') {
+  const q = query.toLowerCase().trim();
+  const ordered = [localZone, ...allZones.filter(z => z !== localZone)];
+  const matches = q
+    ? ordered.filter(z => z.toLowerCase().includes(q) || z.replace(/_/g, ' ').toLowerCase().includes(q)).slice(0, 50)
+    : ordered.slice(0, 80);
+
+  elSrcZoneDropdown.innerHTML = matches.map(z => {
+    const city = z.split('/').pop().replace(/_/g, ' ');
+    const region = z.split('/').slice(0, -1).join(' / ');
+    const isSelected = z === state.srcZone;
+    const isLocal = z === localZone;
+    return `<div class="tz-combobox-item${isSelected ? ' selected' : ''}" data-zone="${z}">
+      ${city}${isLocal ? ' <span style="color:var(--accent-dark);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em">local</span>' : ''}
+      ${region ? `<div class="tz-cb-sub">${region}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  elSrcZoneDropdown.querySelectorAll('.tz-combobox-item').forEach(item => {
+    item.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      const z = item.dataset.zone;
+      state.srcZone = z;
+      elSrcZoneInput.value = z.replace(/_/g, ' ');
+      elSrcZoneInput.blur();
+      closeSrcZoneDropdown();
+      renderSourceInputs();
+      renderDate();
+      renderHero();
+      renderTzList();
+    });
+  });
+
+  elSrcZoneDropdown.classList.add('open');
+  srcZoneDropdownOpen = true;
+}
+
+function closeSrcZoneDropdown() {
+  elSrcZoneDropdown.classList.remove('open');
+  srcZoneDropdownOpen = false;
+  elSrcZoneInput.value = state.srcZone.replace(/_/g, ' ');
+}
+
+function initSrcZoneCombobox() {
+  elSrcZoneInput.value = state.srcZone.replace(/_/g, ' ');
+  elSrcZoneInput.addEventListener('focus', (e) => { e.target.select(); openSrcZoneDropdown(''); });
+  elSrcZoneInput.addEventListener('input', (e) => openSrcZoneDropdown(e.target.value));
+  elSrcZoneInput.addEventListener('blur', () => setTimeout(closeSrcZoneDropdown, 150));
+}
+
+function renderSourceInputs() {
+  const d = state.srcDateTime;
+  const p = getZoneParts(d, state.srcZone);
+  elSrcDate.value = `${p.year}-${p.month}-${p.day}`;
+  const hour = p.hour === '24' ? '00' : p.hour;
+  elSrcTime.value = `${hour}:${p.minute}`;
+  elSrcZoneInput.value = state.srcZone.replace(/_/g, ' ');
+}
+
+function renderAll() {
+  renderDate();
+  renderHero();
+  renderTzList();
+  renderPresets();
+}
+
+document.querySelectorAll('[data-mode-btn]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const mode = btn.dataset.modeBtn;
+    state.mode = mode;
+    document.body.dataset.mode = mode;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b === btn));
+    if (mode === 'convert') {
+      state.srcDateTime = new Date();
+      state.srcZone = localZone;
+      renderSourceInputs();
+    }
+    renderAll();
+  });
+});
+
+function updateSrcFromInputs() {
+  const dateVal = elSrcDate.value;
+  const timeVal = elSrcTime.value;
+  if (!dateVal || !timeVal) return;
+  const [y, m, d] = dateVal.split('-').map(Number);
+  const tParts = timeVal.split(':').map(Number);
+  const h = tParts[0] || 0;
+  const mn = tParts[1] || 0;
+  const s = tParts[2] || 0;
+  const guess = new Date(Date.UTC(y, m - 1, d, h, mn, s));
+  const offset = getZoneOffsetMinutes(guess, state.srcZone);
+  state.srcDateTime = new Date(guess.getTime() - offset * 60000);
+  renderDate();
+  renderHero();
+  renderTzList();
+}
+
+elSrcDate.addEventListener('change', updateSrcFromInputs);
+elSrcTime.addEventListener('change', updateSrcFromInputs);
+
+document.getElementById('resetNow').addEventListener('click', () => {
+  state.srcDateTime = new Date();
+  state.srcZone = localZone;
+  renderSourceInputs();
+  renderDate();
+  renderHero();
+  renderTzList();
+});
+
+document.getElementById('t24').addEventListener('change', (e) => {
+  state.use24 = e.target.checked;
+  renderHero();
+  renderTzList();
+});
+document.getElementById('tSec').addEventListener('change', (e) => {
+  state.showSeconds = e.target.checked;
+  renderHero();
+  renderTzList();
+});
+document.getElementById('tDay').addEventListener('change', (e) => {
+  state.showDayOffset = e.target.checked;
+  renderTzList();
+});
+
+const searchInput = document.getElementById('search');
+const searchDropdown = document.getElementById('searchDropdown');
+
+function renderSearch(query) {
+  const q = query.toLowerCase().trim();
+  if (!q) {
+    searchDropdown.classList.remove('open');
+    searchDropdown.innerHTML = '';
+    return;
+  }
+  const matches = allZones
+    .filter(z => z.toLowerCase().includes(q) || z.replace(/_/g, ' ').toLowerCase().includes(q))
+    .slice(0, 40);
+
+  if (matches.length === 0) {
+    searchDropdown.innerHTML = '<div class="search-empty">No matches</div>';
+  } else {
+    searchDropdown.innerHTML = matches.map(z => {
+      const added = state.zones.some(e => e.id === z);
+      return `<div class="search-item${added ? ' added' : ''}" data-zone="${z}">${z.replace(/_/g, ' ')}${added ? ' · added' : ''}</div>`;
+    }).join('');
+    searchDropdown.querySelectorAll('.search-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const z = item.dataset.zone;
+        if (state.zones.some(e => e.id === z)) return;
+        state.zones.push({ id: z, label: cityFromZone(z), zone: z });
+        searchInput.value = '';
+        searchDropdown.classList.remove('open');
+        renderAll();
+      });
+    });
+  }
+  searchDropdown.classList.add('open');
+}
+
+searchInput.addEventListener('input', (e) => renderSearch(e.target.value));
+searchInput.addEventListener('focus', (e) => { if (e.target.value) renderSearch(e.target.value); });
+document.addEventListener('click', (e) => {
+  if (!searchDropdown.contains(e.target) && e.target !== searchInput) {
+    searchDropdown.classList.remove('open');
+  }
+});
+
+initSrcZoneCombobox();
+renderSourceInputs();
+renderAll();
+
+setInterval(() => {
+  if (state.mode === 'clock') {
+    renderDate();
+    renderHero();
+    renderTzList();
+  }
+}, 1000);
+</script>
+</body>
+</html>
