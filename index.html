@@ -3,43 +3,35 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Document Library</title>
+<title>AHMP Apps</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet" />
 <style>
   :root {
-    /* Brand */
-    --blue:        #155A9E;
-    --blue-dark:   #0e4278;
-    --blue-light:  #e8f0f9;
-    --blue-border: #7aadd4;
+    --blue:          #155A9E;
+    --blue-dark:     #0e4278;
+    --blue-light:    #e8f0f9;
+    --blue-border:   #7aadd4;
     --purple:        #F067AF;
     --purple-dark:   #d44d96;
     --purple-light:  #fef0f7;
     --purple-border: #f7aed8;
     --purple-soft:   #fde3f1;
-    --purple-btn:    #f49ccc;
-
-    /* Status */
-    --green:  #22c55e;
-    --orange: #f97316;
-    --red:    #ef4444;
-
-    /* Neutral ramp */
-    --gray-50:  #f9fafb;
-    --gray-100: #f3f4f6;
-    --gray-200: #e5e7eb;
-    --gray-300: #d1d5db;
-    --gray-400: #9ca3af;
-    --gray-500: #6b7280;
-    --gray-600: #4b5563;
-    --gray-800: #1f2937;
-    --gray-900: #111827;
-
-    /* Type */
-    --font-display: "Nunito", sans-serif;
-    --font-body: "DM Sans", sans-serif;
+    --green:         #22c55e;
+    --orange:        #f97316;
+    --red:           #ef4444;
+    --gray-50:       #f9fafb;
+    --gray-100:      #f3f4f6;
+    --gray-200:      #e5e7eb;
+    --gray-300:      #d1d5db;
+    --gray-400:      #9ca3af;
+    --gray-500:      #6b7280;
+    --gray-600:      #4b5563;
+    --gray-800:      #1f2937;
+    --gray-900:      #111827;
+    --font-display:  "Nunito", sans-serif;
+    --font-body:     "DM Sans", sans-serif;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -52,16 +44,19 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 28px 16px 48px;
+    padding: 28px 16px 64px;
     -webkit-font-smoothing: antialiased;
   }
 
   .column {
     width: 100%;
-    max-width: 640px;
+    max-width: 960px;
   }
 
   /* ---- Masthead ---- */
+  .masthead {
+    margin-bottom: 28px;
+  }
   .eyebrow {
     font-size: 11px;
     font-weight: 700;
@@ -70,18 +65,19 @@
     color: var(--gray-400);
     margin-bottom: 6px;
   }
-  h1.title {
-    font-size: clamp(18px, 3.5vw, 26px);
-    font-weight: 700;
+  h1.site-title {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 6vw, 52px);
+    font-weight: 900;
     color: var(--gray-900);
-    letter-spacing: -0.5px;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 8px;
   }
   .subtitle {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 400;
     color: var(--gray-500);
-    margin-top: 4px;
-    margin-bottom: 28px;
   }
 
   /* ---- Controls ---- */
@@ -109,7 +105,7 @@
     font-family: var(--font-body);
     font-size: 15px;
     color: var(--gray-900);
-    background: #ffffff;
+    background: #fff;
     border: 2px solid var(--gray-200);
     border-radius: 8px;
     padding: 9px 14px 9px 38px;
@@ -124,7 +120,7 @@
     font-size: 14px;
     font-weight: 600;
     color: var(--gray-600);
-    background: #ffffff;
+    background: #fff;
     border: 2px solid var(--gray-200);
     border-radius: 8px;
     padding: 9px 34px 9px 14px;
@@ -139,8 +135,8 @@
   select:hover { border-color: var(--gray-300); }
   select:focus { border-color: var(--blue); }
 
-  /* ---- Tag filter row ---- */
-  .tag-section { margin-bottom: 22px; }
+  /* ---- Tag filters ---- */
+  .tag-section { margin-bottom: 28px; }
   .tags {
     display: flex;
     gap: 8px;
@@ -152,7 +148,7 @@
     font-size: 13px;
     font-weight: 600;
     color: var(--gray-600);
-    background: #ffffff;
+    background: #fff;
     border: 2px solid var(--gray-200);
     border-radius: 8px;
     padding: 7px 14px;
@@ -166,87 +162,147 @@
     color: var(--blue-dark);
   }
 
-  /* ---- Document cards ---- */
+  /* ---- Section headings ---- */
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .section-head h2 {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray-400);
+    white-space: nowrap;
+  }
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--gray-100);
+  }
+
+  /* ---- Grids ---- */
   .grid {
     display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 12px;
+    margin-bottom: 32px;
   }
+
+  @media (max-width: 680px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 440px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  /* ---- Cards ---- */
   .card {
-    display: block;
+    display: flex;
+    flex-direction: column;
     text-decoration: none;
     color: inherit;
     background: var(--gray-50);
     border: 2px solid var(--gray-200);
     border-radius: 14px;
-    padding: 16px 20px;
+    padding: 16px 18px;
     transition: background 0.25s ease, border-color 0.25s ease;
+    min-height: 120px;
   }
-  .card:hover {
+
+  /* Blue cards (regular) */
+  .card.blue:hover {
     background: var(--blue-light);
     border-color: var(--blue-border);
   }
-  .card-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
+
+  /* Purple cards (top picks) */
+  .card.purple {
+    background: var(--purple-light);
+    border-color: var(--purple-border);
   }
+  .card.purple:hover {
+    background: var(--purple-soft);
+    border-color: var(--purple-dark);
+  }
+
   .card h2 {
-    font-size: 17px;
+    font-size: 15px;
     font-weight: 700;
     color: var(--gray-900);
     letter-spacing: -0.3px;
-  }
-  .card-date {
-    font-size: 13px;
-    color: var(--gray-400);
-    white-space: nowrap;
+    margin-bottom: 6px;
   }
   .card-desc {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 400;
-    color: var(--gray-600);
-    margin: 6px 0 12px;
+    color: var(--gray-500);
     line-height: 1.5;
+    flex: 1;
   }
-  .card-tags {
+  .card-foot {
     display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
   }
   .pill {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
+    border-radius: 99px;
+    padding: 3px 9px;
+  }
+  .pill.blue {
     color: var(--blue-dark);
     background: var(--blue-light);
-    border-radius: 99px;
-    padding: 4px 10px;
   }
+  .pill.purple {
+    color: var(--purple-dark);
+    background: var(--purple-soft);
+  }
+  .card-arrow {
+    width: 16px; height: 16px;
+    stroke: var(--gray-300);
+    fill: none;
+    transition: stroke 0.2s ease, transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  .card.blue:hover .card-arrow  { stroke: var(--blue);   transform: translate(2px,-2px); }
+  .card.purple:hover .card-arrow { stroke: var(--purple); transform: translate(2px,-2px); }
 
-  /* ---- Empty / error ---- */
+  /* ---- Empty state ---- */
   .empty {
+    grid-column: 1 / -1;
     text-align: center;
     padding: 40px 20px;
     color: var(--gray-400);
     font-size: 15px;
   }
+
+  /* ---- Top picks hidden when filtering ---- */
+  .top-section { transition: opacity 0.2s ease; }
+  .top-section.hidden { display: none; }
 </style>
 </head>
 <body>
 <div class="column">
 
-  <div class="eyebrow">Collection</div>
-  <h1 class="title">Document Library</h1>
-  <p class="subtitle">Search, filter, and open any document in the collection.</p>
+  <div class="masthead">
+    <div class="eyebrow">Collection</div>
+    <h1 class="site-title">AHMP Apps</h1>
+    <p class="subtitle">A collection of handy tools, always available.</p>
+  </div>
 
   <div class="controls">
     <div class="search">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" />
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
       </svg>
-      <input type="text" id="search" placeholder="Search the library…" aria-label="Search documents" />
+      <input type="text" id="search" placeholder="Search apps…" aria-label="Search apps" />
     </div>
     <select id="sort" aria-label="Sort order">
       <option value="title">Sort: A–Z</option>
@@ -259,8 +315,23 @@
     <div class="tags" id="tags"></div>
   </div>
 
-  <div class="grid" id="grid"></div>
-  <div class="empty" id="empty" hidden>Nothing in the collection matches that.</div>
+  <!-- Top picks -->
+  <div class="top-section" id="topSection">
+    <div class="section-head">
+      <h2>Top picks</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="grid" id="topGrid"></div>
+  </div>
+
+  <!-- All apps -->
+  <div class="section-head">
+    <h2>All apps</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="grid" id="grid">
+    <div class="empty">Loading…</div>
+  </div>
 
 </div>
 
@@ -268,25 +339,50 @@
 (function () {
   "use strict";
 
-  var grid     = document.getElementById("grid");
-  var tagBox   = document.getElementById("tags");
-  var emptyEl  = document.getElementById("empty");
-  var searchEl = document.getElementById("search");
-  var sortEl   = document.getElementById("sort");
+  var TOP_PICKS = ["Countdown Timer", "QR Code Generator", "Case Converter"];
+
+  var grid      = document.getElementById("grid");
+  var topGrid   = document.getElementById("topGrid");
+  var topSection= document.getElementById("topSection");
+  var tagBox    = document.getElementById("tags");
+  var searchEl  = document.getElementById("search");
+  var sortEl    = document.getElementById("sort");
 
   var DOCS = [];
   var activeTag = null;
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
-      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
     });
   }
 
   function formatDate(iso) {
     var d = new Date(iso + "T00:00:00");
     if (isNaN(d)) return iso;
-    return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    return d.toLocaleDateString(undefined, {year:"numeric", month:"short", day:"numeric"});
+  }
+
+  function isTopPick(doc) {
+    return TOP_PICKS.indexOf(doc.title) >= 0;
+  }
+
+  function makeCard(d, isPurple) {
+    var a = document.createElement("a");
+    a.className = "card " + (isPurple ? "purple" : "blue");
+    a.href = d.file;
+    var pillClass = isPurple ? "pill purple" : "pill blue";
+    var tags = (d.tags || []).map(function (t) {
+      return '<span class="' + pillClass + '">' + escapeHtml(t) + "</span>";
+    }).join(" ");
+    a.innerHTML =
+      "<h2>" + escapeHtml(d.title) + "</h2>" +
+      '<p class="card-desc">' + escapeHtml(d.desc || "") + "</p>" +
+      '<div class="card-foot">' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;">' + tags + "</div>" +
+        '<svg class="card-arrow" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>' +
+      "</div>";
+    return a;
   }
 
   function collectTags() {
@@ -298,14 +394,13 @@
   }
 
   function renderTags() {
-    var tags = collectTags();
     tagBox.innerHTML = "";
     var all = document.createElement("button");
     all.className = "chip" + (activeTag === null ? " active" : "");
     all.textContent = "All";
     all.onclick = function () { activeTag = null; render(); };
     tagBox.appendChild(all);
-    tags.forEach(function (t) {
+    collectTags().forEach(function (t) {
       var b = document.createElement("button");
       b.className = "chip" + (activeTag === t ? " active" : "");
       b.textContent = t;
@@ -317,7 +412,9 @@
   function render() {
     renderTags();
     var term = searchEl.value.trim().toLowerCase();
+    var isFiltering = term || activeTag;
 
+    // Filter
     var rows = DOCS.filter(function (d) {
       var hay = (d.title + " " + (d.desc || "")).toLowerCase();
       var matchTerm = !term || hay.indexOf(term) >= 0;
@@ -325,31 +422,38 @@
       return matchTerm && matchTag;
     });
 
+    // Sort
     rows.sort(function (a, b) {
       if (sortEl.value === "date") return (b.date || "").localeCompare(a.date || "");
       return a.title.localeCompare(b.title);
     });
 
-    grid.innerHTML = "";
-    rows.forEach(function (d) {
-      var a = document.createElement("a");
-      a.className = "card";
-      a.href = d.file;
-      var pills = (d.tags || []).map(function (t) {
-        return '<span class="pill">' + escapeHtml(t) + "</span>";
-      }).join("");
-      a.innerHTML =
-        '<div class="card-head">' +
-          "<h2>" + escapeHtml(d.title) + "</h2>" +
-          '<span class="card-date">' + formatDate(d.date || "") + "</span>" +
-        "</div>" +
-        '<p class="card-desc">' + escapeHtml(d.desc || "") + "</p>" +
-        '<div class="card-tags">' + pills + "</div>";
-      grid.appendChild(a);
-    });
+    // Top picks — hide when user is actively searching/filtering
+    if (isFiltering) {
+      topSection.classList.add("hidden");
+    } else {
+      topSection.classList.remove("hidden");
+      topGrid.innerHTML = "";
+      TOP_PICKS.forEach(function (title) {
+        var doc = DOCS.find(function (d) { return d.title === title; });
+        if (doc) topGrid.appendChild(makeCard(doc, true));
+      });
+    }
 
-    grid.hidden = rows.length === 0;
-    emptyEl.hidden = rows.length !== 0;
+    // Main grid — exclude top picks when not filtering so they don't repeat
+    var mainRows = isFiltering ? rows : rows.filter(function (d) { return !isTopPick(d); });
+
+    grid.innerHTML = "";
+    if (mainRows.length === 0) {
+      var empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = "No apps match that search.";
+      grid.appendChild(empty);
+    } else {
+      mainRows.forEach(function (d) {
+        grid.appendChild(makeCard(d, false));
+      });
+    }
   }
 
   searchEl.addEventListener("input", render);
@@ -365,11 +469,7 @@
       render();
     })
     .catch(function (err) {
-      grid.hidden = true;
-      emptyEl.hidden = false;
-      emptyEl.textContent =
-        "Could not load library.json (" + err.message +
-        "). If you opened this file directly, run it through a local server instead.";
+      grid.innerHTML = '<div class="empty">Could not load library.json (' + err.message + '). Run via a local server, not file://.</div>';
     });
 })();
 </script>
