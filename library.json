@@ -1,30 +1,100 @@
 [
   {
-    "title": "Getting Started Guide",
-    "file": "docs/getting-started.html",
-    "desc": "A walkthrough for new readers of the library.",
-    "tags": [
-      "Guide"
-    ],
-    "date": "2026-05-15"
+    "title": "Case Converter",
+    "file": "docs/case-converter.html",
+    "desc": "Convert any text to uppercase, lowercase, title case, sentence case, and more.",
+    "tags": ["Text"],
+    "date": "2026-05-19"
   },
   {
-    "title": "Reference Sheet",
-    "file": "docs/reference-sheet.html",
-    "desc": "A compact one-page reference of common terms.",
-    "tags": [
-      "Reference"
-    ],
-    "date": "2026-05-08"
+    "title": "Coin Flipper",
+    "file": "docs/coin-flipper.html",
+    "desc": "Flip a coin and let chance decide. Heads or tails.",
+    "tags": ["Random"],
+    "date": "2026-05-19"
   },
   {
-    "title": "Sample Report",
-    "file": "docs/sample-report.html",
-    "desc": "An example report layout to duplicate and adapt.",
-    "tags": [
-      "Report",
-      "Template"
-    ],
-    "date": "2026-04-30"
+    "title": "Countdown Timer",
+    "file": "docs/Countdown_timer.html",
+    "desc": "Set a countdown to any date or time and watch it tick down in real time.",
+    "tags": ["Time"],
+    "date": "2026-05-19"
+  },
+  {
+    "title": "Dice Roller",
+    "file": "docs/dice-roller.html",
+    "desc": "Roll any number of dice with different sides — D4, D6, D8, D12, D20 and more.",
+    "tags": ["Random"],
+    "date": "2026-05-19"
+  },
+  {
+    "title": "Password Generator",
+    "file": "docs/password-generator.html",
+    "desc": "Generate strong, random passwords with custom length and character rules.",
+    "tags": ["Utility"],
+    "date": "2026-05-19"
+  },
+  {
+    "title": "QR Code Generator",
+    "file": "docs/qr-generator.html",
+    "desc": "Turn any URL or text into a scannable QR code instantly.",
+    "tags": ["Utility"],
+    "date": "2026-05-19"
+  },
+  {
+    "title": "Random Name Picker",
+    "file": "docs/Random_Name_Picker.html",
+    "desc": "Enter a list of names and pick one at random — great for raffles and classroom draws.",
+    "tags": ["Random"],
+    "date": "2026-05-19"
+  },
+  {
+    "title": "Random Number Generator",
+    "file": "docs/random-number-generator.html",
+    "desc": "Generate a random number within any range, with an optional no-duplicates mode.",
+    "tags": ["Random"],
+    "date": "2026-05-19"
+  },
+  {
+    "title": "Stopwatch",
+    "file": "docs/stopwatch.html",
+    "desc": "A clean stopwatch with lap tracking and split times.",
+    "tags": ["Time"],
+    "date": "2026-05-19"
+  },
+  {
+    "title": "Team Randomizer",
+    "file": "docs/team-randomizer.html",
+    "desc": "Split a list of names into balanced random teams in one click.",
+    "tags": ["Random"],
+    "date": "2026-05-19"
+  },
+  {
+    "title": "Unit Converter",
+    "file": "docs/unit-converter.html",
+    "desc": "Convert between units of length, weight, and temperature with a live result.",
+    "tags": ["Utility"],
+    "date": "2026-05-19"
+  },
+  {
+    "title": "Decision Wheel",
+    "file": "docs/wheel-spinner.html",
+    "desc": "Add your options, spin the wheel, and let it choose for you.",
+    "tags": ["Random"],
+    "date": "2026-05-19"
+  },
+  {
+    "title": "Word Counter",
+    "file": "docs/word-counter.html",
+    "desc": "Count words, characters, sentences, and reading time as you type.",
+    "tags": ["Text"],
+    "date": "2026-05-19"
+  },
+  {
+    "title": "World Clock",
+    "file": "docs/world-clock.html",
+    "desc": "See the current time across multiple time zones at a glance.",
+    "tags": ["Time"],
+    "date": "2026-05-19"
   }
 ]
