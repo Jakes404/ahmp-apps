@@ -15,7 +15,7 @@
   },
   {
     "title": "Countdown Timer",
-    "file": "docs/Countdown_timer.html",
+    "file": "docs/countdown-timer.html",
     "desc": "Set a countdown to any date or time and watch it tick down in real time.",
     "tags": ["Time"],
     "date": "2026-05-19"
@@ -43,7 +43,7 @@
   },
   {
     "title": "Random Name Picker",
-    "file": "docs/Random_Name_Picker.html",
+    "file": "docs/random-name-picker.html",
     "desc": "Enter a list of names and pick one at random — great for raffles and classroom draws.",
     "tags": ["Random"],
     "date": "2026-05-19"
