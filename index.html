@@ -371,6 +371,8 @@
     var a = document.createElement("a");
     a.className = "card " + (isPurple ? "purple" : "blue");
     a.href = d.file;
+    a.target = "_blank";
+    a.rel = "noopener";
     var pillClass = isPurple ? "pill purple" : "pill blue";
     var tags = (d.tags || []).map(function (t) {
       return '<span class="' + pillClass + '">' + escapeHtml(t) + "</span>";
